@@ -37,14 +37,15 @@ import keras.backend as K
 import h5py
 
 import tensorflow as tf
-from keras.backend.tensorflow_backend import set_session
-config = tf.ConfigProto()
+
+from tensorflow.python.keras.backend import set_session
+config = tf.compat.v1.ConfigProto()
 
 # use this option to reserve GPU memory, e.g. for running more than
 # one thing at a time.  Best to disable for GPUs with small memory
 config.gpu_options.per_process_gpu_memory_fraction = 0.44
 
-set_session(tf.Session(config=config))
+set_session(tf.compat.v1.Session(config=config))
 
 nb_epochs = 120
 
