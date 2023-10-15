@@ -63,7 +63,7 @@ model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=
 
 
 
-model.load_weights('lpcnet20_384_10_G16_02.h5')
+model.load_weights('/content/drive/MyDrive/lpcnet20_384_10_G16_02.h5')
 
 # order = 16
 
