@@ -79,9 +79,9 @@ bias_name   = 'dual_fc/bias:0'
 factor_name = 'dual_fc/factor:0'
 
 # print(dir(model.get_layer("dual_fc")))
-kernel_weight = get_weights_by_name(model, kernel_name)
-bias_weight = get_weights_by_name(model, bias_name)
-factor_weight = get_weights_by_name(model, factor_name)
+kernel_weight = get_weights_by_name(model, kernel_name).numpy()
+bias_weight = get_weights_by_name(model, bias_name).numpy()
+factor_weight = get_weights_by_name(model, factor_name).numpy()
 # order = 16
 
 # pcm = np.zeros((nb_frames*pcm_chunk_size, ))
