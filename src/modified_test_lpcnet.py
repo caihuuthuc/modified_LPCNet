@@ -36,9 +36,15 @@ import h5py
 
 import tensorflow as tf
 from tensorflow.python.keras.backend import set_session
+
+def get_weights_by_name(model, name):
+    return [w for w in model.weights if w.name==name][0]
+
 config = tf.compat.v1.ConfigProto()
 config.gpu_options.per_process_gpu_memory_fraction = 0.2
 set_session(tf.compat.v1.Session(config=config))
+
+
 
 model, enc, dec = lpcnet.new_lpcnet_model(use_gpu=False)
 
@@ -65,6 +71,17 @@ model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=
 
 model.load_weights('/content/drive/MyDrive/lpcnet20_384_10_G16_02.h5')
 
+# names = [weight.name for layer in model.layers for weight in layer.weights]
+# print(names)
+
+kernel_name = 'dual_fc/kernel:0'
+bias_name   = 'dual_fc/bias:0'
+factor_name = 'dual_fc/factor:0'
+
+# print(dir(model.get_layer("dual_fc")))
+kernel_weight = get_weights_by_name(model, kernel_name)
+bias_weight = get_weights_by_name(model, bias_name)
+factor_weight = get_weights_by_name(model, factor_name)
 # order = 16
 
 # pcm = np.zeros((nb_frames*pcm_chunk_size, ))
