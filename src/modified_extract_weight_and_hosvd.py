@@ -40,13 +40,13 @@ kernel_weight = get_weights_by_name(model, kernel_name).numpy()
 bias_weight = get_weights_by_name(model, bias_name).numpy()
 factor_weight = get_weights_by_name(model, factor_name).numpy()
 
-with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'wb') as f:
+with open('/content/modified_LPCNet/kernel_weight_of_dualfc.npy', 'wb') as f:
     np.save(f, kernel_weight)
 
-with open('/content/drive/MyDrive/bias_weight_of_dualfc.npy', 'wb') as f:
+with open('/content/modified_LPCNet/bias_weight_of_dualfc.npy', 'wb') as f:
     np.save(f, bias_weight)
 
-with open('/content/drive/MyDrive/factor_weight_of_dualfc.npy', 'wb') as f:
+with open('/content/modified_LPCNet/factor_weight_of_dualfc.npy', 'wb') as f:
     np.save(f, factor_weight)
 
 tucker_tensor = tucker(tl.tensor(kernel_weight), rank=[2, 3, 2])
@@ -56,14 +56,14 @@ factor_0 = tl.to_numpy(tucker_tensor[1][0])
 factor_1 = tl.to_numpy(tucker_tensor[1][1])
 factor_2 = tl.to_numpy(tucker_tensor[1][2])
 
-with open('core_kernel_weight_of_dualfc.npy', 'wb') as f:
+with open('/content/modified_LPCNet/core_kernel_weight_of_dualfc.npy', 'wb') as f:
     np.save(f, core)
 
-with open('factor_0_kernel_weight_of_dualfc.npy', 'wb') as f:
+with open('/content/modified_LPCNet/factor_0_kernel_weight_of_dualfc.npy', 'wb') as f:
     np.save(f, factor_0)
 
-with open('factor_1_kernel_weight_of_dualfc.npy', 'wb') as f:
+with open('/content/modified_LPCNet/factor_1_kernel_weight_of_dualfc.npy', 'wb') as f:
     np.save(f, factor_1)
 
-with open('factor_2_kernel_weight_of_dualfc.npy', 'wb') as f:
+with open('/content/modified_LPCNet/factor_2_kernel_weight_of_dualfc.npy', 'wb') as f:
     np.save(f, factor_2)
