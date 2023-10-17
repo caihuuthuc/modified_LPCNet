@@ -10,7 +10,7 @@ import numpy as np
 import h5py
 import sys
 
-from modified_mdense import MDense
+from modified_tucker_mdense import MDense
 
 pcm_bits = 8
 embed_size = 128
