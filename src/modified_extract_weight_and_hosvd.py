@@ -45,6 +45,8 @@ with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'wb') as f:
 
 tucker_tensor = tucker(tl.tensor(kernel_weight), rank=[2, 3, 2])
 
+reconstructed = tl.tucker_to_tensor(tucker_tensor)
+
 core = tl.to_numpy(tucker_tensor[0])
 factor_0 = tl.to_numpy(tucker_tensor[1][0])
 factor_1 = tl.to_numpy(tucker_tensor[1][1])
@@ -61,3 +63,6 @@ with open('/content/drive/MyDrive/factor_1_kernel_weight_of_dualfc.npy', 'wb') a
 
 with open('/content/drive/MyDrive/factor_2_kernel_weight_of_dualfc.npy', 'wb') as f:
     np.save(f, factor_2)
+
+with open('/content/drive/MyDrive/reconstructed_kernel_weight_of_dualfc.npy', 'wb') as f:
+    np.save(f, reconstructed)
