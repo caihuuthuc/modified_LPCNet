@@ -1,107 +1,147 @@
 #!/usr/bin/python3
-'''Copyright (c) 2018 Mozilla
 
-   Redistribution and use in source and binary forms, with or without
-   modification, are permitted provided that the following conditions
-   are met:
-
-   - Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-
-   - Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR
-   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-'''
-
-import lpcnet
-import sys
+import math
+from keras.models import Model
+from keras.layers import Input, GRU, CuDNNGRU, Dense, Embedding, Reshape, Concatenate, Lambda, Conv1D, Multiply, Add, Bidirectional, MaxPooling1D, Activation
+from keras import backend as K
+from keras.initializers import Initializer
+from keras.callbacks import Callback
 import numpy as np
-from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
-from ulaw import ulaw2lin, lin2ulaw
-import keras.backend as K
 import h5py
+import sys
 
-import tensorflow as tf
-from tensorflow.python.keras.backend import set_session
-config = tf.compat.v1.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.2
-set_session(tf.compat.v1.Session(config=config))
+from modified_mdense import MDense
 
-model, enc, dec = lpcnet.new_lpcnet_model()
+pcm_bits = 8
+embed_size = 128
+pcm_levels = 2**pcm_bits
 
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
-#model.summary()
+class Sparsify(Callback):
+    def __init__(self, t_start, t_end, interval, density):
+        super(Sparsify, self).__init__()
+        self.batch = 0
+        self.t_start = t_start
+        self.t_end = t_end
+        self.interval = interval
+        self.final_density = density
 
-feature_file = sys.argv[1]
-out_file = sys.argv[2]
-frame_size = 160
-nb_features = 55
-nb_used_features = model.nb_used_features
+    def on_batch_end(self, batch, logs=None):
+        #print("batch number", self.batch)
+        self.batch += 1
+        if self.batch < self.t_start or ((self.batch-self.t_start) % self.interval != 0 and self.batch < self.t_end):
+            #print("don't constrain");
+            pass
+        else:
+            #print("constrain");
+            layer = self.model.get_layer('gru_a')
+            w = layer.get_weights()
+            p = w[1]
+            nb = p.shape[1]//p.shape[0]
+            N = p.shape[0]
+            #print("nb = ", nb, ", N = ", N);
+            #print(p.shape)
+            #print ("density = ", density)
+            for k in range(nb):
+                density = self.final_density[k]
+                if self.batch < self.t_end:
+                    r = 1 - (self.batch-self.t_start)/(self.t_end - self.t_start)
+                    density = 1 - (1-self.final_density[k])*(1 - r*r*r)
+                A = p[:, k*N:(k+1)*N]
+                A = A - np.diag(np.diag(A))
+                A = np.transpose(A, (1, 0))
+                L=np.reshape(A, (N, N//16, 16))
+                S=np.sum(L*L, axis=-1)
+                SS=np.sort(np.reshape(S, (-1,)))
+                thresh = SS[round(N*N//16*(1-density))]
+                mask = (S>=thresh).astype('float32');
+                mask = np.repeat(mask, 16, axis=1)
+                mask = np.minimum(1, mask + np.diag(np.ones((N,))))
+                mask = np.transpose(mask, (1, 0))
+                p[:, k*N:(k+1)*N] = p[:, k*N:(k+1)*N]*mask
+                #print(thresh, np.mean(mask))
+            w[1] = p
+            layer.set_weights(w)
+            
 
-features = np.fromfile(feature_file, dtype='float32')
-features = np.resize(features, (-1, nb_features))
-nb_frames = 1
-feature_chunk_size = features.shape[0]
-pcm_chunk_size = frame_size*feature_chunk_size
+class PCMInit(Initializer):
+    def __init__(self, gain=.1, seed=None):
+        self.gain = gain
+        self.seed = seed
 
-features = np.reshape(features, (nb_frames, feature_chunk_size, nb_features))
-features[:,:,18:36] = 0
-periods = (.1 + 50*features[:,:,36:37]+100).astype('int16')
+    def __call__(self, shape, dtype=None):
+        num_rows = 1
+        for dim in shape[:-1]:
+            num_rows *= dim
+        num_cols = shape[-1]
+        flat_shape = (num_rows, num_cols)
+        if self.seed is not None:
+            np.random.seed(self.seed)
+        a = np.random.uniform(-1.7321, 1.7321, flat_shape)
+        #a[:,0] = math.sqrt(12)*np.arange(-.5*num_rows+.5,.5*num_rows-.4)/num_rows
+        #a[:,1] = .5*a[:,0]*a[:,0]*a[:,0]
+        a = a + np.reshape(math.sqrt(12)*np.arange(-.5*num_rows+.5,.5*num_rows-.4)/num_rows, (num_rows, 1))
+        return self.gain * a
 
+    def get_config(self):
+        return {
+            'gain': self.gain,
+            'seed': self.seed
+        }
 
+def new_lpcnet_model(rnn_units1=384, rnn_units2=16, nb_used_features = 38, use_gpu=True):
+    pcm = Input(shape=(None, 2))
+    exc = Input(shape=(None, 1))
+    feat = Input(shape=(None, nb_used_features))
+    pitch = Input(shape=(None, 1))
+    dec_feat = Input(shape=(None, 128))
+    dec_state1 = Input(shape=(rnn_units1,))
+    dec_state2 = Input(shape=(rnn_units2,))
 
-model.load_weights('/content/drive/MyDrive/lpcnet20_384_10_G16_02.h5')
+    fconv1 = Conv1D(128, 3, padding='same', activation='tanh', name='feature_conv1')
+    fconv2 = Conv1D(102, 3, padding='same', activation='tanh', name='feature_conv2')
 
-order = 16
+    embed = Embedding(256, embed_size, embeddings_initializer=PCMInit(), name='embed_sig')
+    cpcm = Reshape((-1, embed_size*2))(embed(pcm))
+    embed2 = Embedding(256, embed_size, embeddings_initializer=PCMInit(), name='embed_exc')
+    cexc = Reshape((-1, embed_size))(embed2(exc))
 
-pcm = np.zeros((nb_frames*pcm_chunk_size, ))
-fexc = np.zeros((1, 1, 2), dtype='float32')
-iexc = np.zeros((1, 1, 1), dtype='int16')
-state1 = np.zeros((1, model.rnn_units1), dtype='float32')
-state2 = np.zeros((1, model.rnn_units2), dtype='float32')
+    pembed = Embedding(256, 64, name='embed_pitch')
+    cat_feat = Concatenate()([feat, Reshape((-1, 64))(pembed(pitch))])
+    
+    cfeat = fconv2(fconv1(cat_feat))
 
-mem = 0
-coef = 0.85
+    fdense1 = Dense(128, activation='tanh', name='feature_dense1')
+    fdense2 = Dense(128, activation='tanh', name='feature_dense2')
 
-fout = open(out_file, 'wb')
+    cfeat = Add()([cfeat, cat_feat])
+    cfeat = fdense2(fdense1(cfeat))
+    
+    rep = Lambda(lambda x: K.repeat_elements(x, 160, 1))
 
-skip = order + 1
-for c in range(0, nb_frames):
-    cfeat = enc.predict([features[c:c+1, :, :nb_used_features], periods[c:c+1, :, :]])
-    for fr in range(0, feature_chunk_size):
-        f = c*feature_chunk_size + fr
-        a = features[c, fr, nb_features-order:]
-        for i in range(skip, frame_size):
-            pred = -sum(a*pcm[f*frame_size + i - 1:f*frame_size + i - order-1:-1])
-            fexc[0, 0, 1] = lin2ulaw(pred)
+    if use_gpu:
+        rnn = CuDNNGRU(rnn_units1, return_sequences=True, return_state=True, name='gru_a')
+        rnn2 = CuDNNGRU(rnn_units2, return_sequences=True, return_state=True, name='gru_b')
+    else:
+        rnn = GRU(rnn_units1, return_sequences=True, return_state=True, recurrent_activation="sigmoid", reset_after='true', name='gru_a')
+        rnn2 = GRU(rnn_units2, return_sequences=True, return_state=True, recurrent_activation="sigmoid", reset_after='true', name='gru_b')
 
-            p, state1, state2 = dec.predict([fexc, iexc, cfeat[:, fr:fr+1, :], state1, state2])
-            #Lower the temperature for voiced frames to reduce noisiness
-            p *= np.power(p, np.maximum(0, 1.5*features[c, fr, 37] - .5))
-            p = p/(1e-18 + np.sum(p))
-            #Cut off the tail of the remaining distribution
-            p = np.maximum(p-0.002, 0).astype('float64')
-            p = p/(1e-8 + np.sum(p))
+    rnn_in = Concatenate()([cpcm, cexc, rep(cfeat)])
+    md = MDense(pcm_levels, activation='softmax', name='dual_fc')
+    gru_out1, _ = rnn(rnn_in)
+    gru_out2, _ = rnn2(Concatenate()([gru_out1, rep(cfeat)]))
+    ulaw_prob = md(gru_out2)
+    
+    model = Model([pcm, exc, feat, pitch], ulaw_prob)
+    model.rnn_units1 = rnn_units1
+    model.rnn_units2 = rnn_units2
+    model.nb_used_features = nb_used_features
 
-            iexc[0, 0, 0] = np.argmax(np.random.multinomial(1, p[0,0,:], 1))
-            pcm[f*frame_size + i] = pred + ulaw2lin(iexc[0, 0, 0])
-            fexc[0, 0, 0] = lin2ulaw(pcm[f*frame_size + i])
-            mem = coef*mem + pcm[f*frame_size + i]
-            #print(mem)
-            np.array([np.round(mem)], dtype='int16').tofile(fout)
-        skip = 0
+    encoder = Model([feat, pitch], cfeat)
+    
+    dec_rnn_in = Concatenate()([cpcm, cexc, dec_feat])
+    dec_gru_out1, state1 = rnn(dec_rnn_in, initial_state=dec_state1)
+    dec_gru_out2, state2 = rnn2(Concatenate()([dec_gru_out1, dec_feat]), initial_state=dec_state2)
+    dec_ulaw_prob = md(dec_gru_out2)
 
-
+    decoder = Model([pcm, exc, dec_feat, dec_state1, dec_state2], [dec_ulaw_prob, state1, state2])
+    return model, encoder, decoder
