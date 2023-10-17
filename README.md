@@ -80,7 +80,11 @@ make test_lpcnet taco=1 # Define TACOTRON2 macro
 ./test_lpcnet test_features.f32 test.s16
 ffmpeg -f s16le -ar 16k -ac 1 -i test.s16 test-out.wav
 ```
+# How to decomposition
 
+```bash
+python3 src/modified_extract_weight_and_hosvd.py
+```
 # How to combine the LPCNet and Tacotron2.  
 ## When training  
 the Materials are generated independently with two procedures.
