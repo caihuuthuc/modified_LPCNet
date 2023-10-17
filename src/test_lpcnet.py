@@ -100,7 +100,7 @@ for c in range(0, nb_frames):
             pcm[f*frame_size + i] = pred + ulaw2lin(iexc[0, 0, 0])
             fexc[0, 0, 0] = lin2ulaw(pcm[f*frame_size + i])
             mem = coef*mem + pcm[f*frame_size + i]
-            print(mem)
+            # print(mem)
             # np.array([np.round(mem)], dtype='int16').tofile(fout)
             mems.append(np.round(mem))
         skip = 0
