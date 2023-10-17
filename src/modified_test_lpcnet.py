@@ -25,7 +25,7 @@ nb_features = 55
 nb_used_features = model.nb_used_features
 
 features = np.fromfile(feature_file, dtype='float32')
-features = np.resize(features, (-1, nb_features))
+features = features.reshape((-1, nb_features))
 nb_frames = 1
 feature_chunk_size = features.shape[0]
 pcm_chunk_size = frame_size*feature_chunk_size
@@ -33,8 +33,6 @@ pcm_chunk_size = frame_size*feature_chunk_size
 features = np.reshape(features, (nb_frames, feature_chunk_size, nb_features))
 features[:,:,18:36] = 0
 periods = (.1 + 50*features[:,:,36:37]+100).astype('int16')
-
-
 
 model.load_weights('/content/drive/MyDrive/lpcnet20_384_10_G16_02.h5')
 
