@@ -76,6 +76,8 @@ coef = 0.85
 
 fout = open(out_file, 'wb')
 
+mems = list()
+
 skip = order + 1
 for c in range(0, nb_frames):
     cfeat = enc.predict([features[c:c+1, :, :nb_used_features], periods[c:c+1, :, :]])
@@ -99,7 +101,8 @@ for c in range(0, nb_frames):
             fexc[0, 0, 0] = lin2ulaw(pcm[f*frame_size + i])
             mem = coef*mem + pcm[f*frame_size + i]
             print(mem)
-            np.array([np.round(mem)], dtype='int16').tofile(fout)
+            # np.array([np.round(mem)], dtype='int16').tofile(fout)
+            mems.append(np.round(mem))
         skip = 0
 
 
