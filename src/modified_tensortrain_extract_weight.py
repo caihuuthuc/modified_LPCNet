@@ -31,3 +31,20 @@ model.load_weights('/content/drive/MyDrive/lpcnet20_384_10_G16_02.h5')
 names = [weight.name for layer in model.layers for weight in layer.weights]
 for name in names:
   print(name)
+
+kernel_name = 'gru_b/gru_cell/kernel:0'
+recurrent_kernel_name   = 'gru_b/gru_cell/recurrent_kernel:0'
+bias_name = 'gru_b/gru_cell/bias:0'
+
+kernel_weight = get_weights_by_name(model, kernel_name).numpy()
+recurrent_kernel_weight = get_weights_by_name(model, recurrent_kernel_name).numpy()
+bias_weight = get_weights_by_name(model, bias_name).numpy()
+
+with open('/content/drive/MyDrive/kernel_weight_of_grub.npy', 'wb') as f:
+    np.save(f, kernel_weight)
+
+with open('/content/drive/MyDrive/recurrent_kernel_weight_of_grub.npy', 'wb') as f:
+    np.save(f, recurrent_kernel_weight)
+
+with open('/content/drive/MyDrive/bias_weight_of_grub.npy', 'wb') as f:
+    np.save(f, bias_weight)
