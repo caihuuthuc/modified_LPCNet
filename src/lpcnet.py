@@ -153,7 +153,13 @@ def new_lpcnet_model(rnn_units1=384, rnn_units2=16, nb_used_features = 38, use_g
     rnn_in = Concatenate()([cpcm, cexc, rep(cfeat)])
     md = MDense(pcm_levels, activation='softmax', name='dual_fc')
     gru_out1, _ = rnn(rnn_in)
+    
     gru_out2, _ = rnn2(Concatenate()([gru_out1, rep(cfeat)]))
+
+    gru_b_inp = Concatenate()([gru_out1, rep(cfeat)])
+    print("GruB input shape: ", gru_b_inp.shape)
+    print("GruB ouput shape: ", gru_out2.shape)
+   
     ulaw_prob = md(gru_out2)
     
     model = Model([pcm, exc, feat, pitch], ulaw_prob)
