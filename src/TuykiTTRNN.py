@@ -24,7 +24,7 @@ SOFTWARE.
 """
 
 import numpy as np
-from keras.layers.recurrent import RNN
+from keras.layers import RNN
 from keras import backend as K
 from tensorflow.keras.layers import InputSpec
 
