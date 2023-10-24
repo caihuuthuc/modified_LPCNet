@@ -187,13 +187,13 @@ class TT_GRU(SimpleRNN):
                                self.tt_ranks[1:] * self.tt_ranks[:-1])
         local_cores_arr = np.random.randn(total_length)
         print(repr(total_length))
-        self.kernel = self.add_weight((total_length, ),
+        self.kernel = self.add_weight(shape=(total_length, ),
                                       initializer=self._kernel_initializer,
                                       name='kernel',
                                       regularizer=self._kernel_regularizer,
                                       constraint=self._kernel_constraint)
         if self._use_bias:
-            self.bias = self.add_weight((np.prod(self.tt_output_shape), ),
+            self.bias = self.add_weight(shape=(np.prod(self.tt_output_shape), ),
                                         initializer=self._bias_initializer,
                                         name='bias',
                                         regularizer=self._bias_regularizer,
