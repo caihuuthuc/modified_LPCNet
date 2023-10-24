@@ -27,7 +27,7 @@ nb_used_features = model.nb_used_features
 features = np.fromfile(feature_file, dtype='float32')
 features = features.reshape((-1, nb_features))
 
-for i in features.shape[0]:
+for i in range(features.shape[0]):
     feature = features[i,:]
     print(feature.shape)
     break
