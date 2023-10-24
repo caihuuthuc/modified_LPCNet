@@ -26,7 +26,6 @@ from keras import initializers
 from keras import regularizers
 from tensorflow.python.keras.engine import base_layer
 from tensorflow.python.keras.engine.input_spec import InputSpec
-from keras.layers.rnn import gru_lstm_utils
 from keras.layers.rnn import rnn_utils
 from keras.layers.rnn.base_rnn import RNN
 from keras.layers.rnn.dropout_rnn_cell_mixin import DropoutRNNCellMixin
