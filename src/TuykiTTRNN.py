@@ -602,7 +602,7 @@ class TT_GRU(RNN):
 
 
 
-class TT_LSTM(Recurrent):
+class TT_LSTM(RNN):
     """
     # Arguments
         tt_input_shape: a list of shapes, the product of which should be equal to the input dimension
