@@ -369,6 +369,7 @@ class TT_GRU(SimpleRNN):
     """
     def __init__(self,
                  tt_input_shape, tt_output_shape, tt_ranks,
+                 units,
                  activation='tanh',
                  recurrent_activation='hard_sigmoid',
                  use_bias=True,
@@ -389,6 +390,7 @@ class TT_GRU(SimpleRNN):
                  **kwargs):
         super(TT_GRU, self).__init__(**kwargs)
 
+        self.units = units
         self.activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
         self.use_bias = use_bias
