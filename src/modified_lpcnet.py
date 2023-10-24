@@ -123,7 +123,7 @@ def new_lpcnet_model(rnn_units1=384, rnn_units2=16, nb_used_features = 38, use_g
     rep = Lambda(lambda x: K.repeat_elements(x, 160, 1))
 
     if use_gpu:
-        rnn = TT_GRU(rnn_units1, return_sequences=True, return_state=True, name='gru_a')
+        rnn = CuDNNGRU(rnn_units1, return_sequences=True, return_state=True, name='gru_a')
     else:
         rnn = GRU(rnn_units1, return_sequences=True, return_state=True, recurrent_activation="sigmoid", reset_after='true', name='gru_a')
 
