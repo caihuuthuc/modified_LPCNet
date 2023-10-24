@@ -228,23 +228,7 @@ class TT_GRU(SimpleRNN):
             initializer=self._recurrent_initializer,
             regularizer=self._recurrent_regularizer,
             constraint=self._recurrent_constraint)
-
-        self.inds = np.zeros(self.num_dim).astype('int32')
-        self.shapes = np.zeros((self.num_dim, 2)).astype('int32')
-        self.cores = [None]*(self.num_dim)
-
-        for k in range(self.num_dim -1, -1, -1):
-            self.shapes[k] = (self.tt_input_shape[k] * self.tt_ranks[k + 1],
-                              self.tt_ranks[k] * self.tt_output_shape[k])
-            self.cores[k] = self.kernel[self.inds[k]:self.inds[k]+np.prod(self.shapes[k])]
-            if 0 < k:
-                self.inds[k-1] = self.inds[k] + np.prod(self.shapes[k])
-
-        self.compress_factor = 1.*(local_cores_arr.size) / \
-                               (np.prod(self.tt_input_shape)*np.prod(self.tt_output_shape))
-
-        print ('Compressrion factor = ', str(self.compress_factor))
-
+        
         self.built = True
 
     def preprocess_input(self, x, training=None):
