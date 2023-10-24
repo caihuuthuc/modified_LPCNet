@@ -2,7 +2,7 @@ from TuykiTTRNN import TT_GRU
 
 import numpy as np
 
-inp = np.random.rand(1, 1, 16*32)
+inp = np.random.rand(11, 1, 16*32)
 tt_input_shape=[16, 32]
 tt_output_shape=[4, 4]
 
