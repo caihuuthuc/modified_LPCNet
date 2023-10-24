@@ -1,5 +1,10 @@
-# LPCNet
+# Compressed LPCNet with Tensor train and Tucker Decomposition
 
+## Requirements
+
+```python
+keras==2.14.0
+```
 Low complexity implementation of the WaveRNN-based LPCNet algorithm, as described in:
 
 J.-M. Valin, J. Skoglund, [LPCNet: Improving Neural Speech Synthesis Through Linear Prediction](https://jmvalin.ca/papers/lpcnet_icassp2019.pdf), *Submitted for ICASSP 2019*, arXiv:1810.11846.
