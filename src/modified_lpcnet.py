@@ -100,21 +100,21 @@ def new_lpcnet_model(rnn_units1=384, rnn_units2=16, nb_used_features = 38, use_g
     dec_state1 = Input(shape=(rnn_units1,))
     dec_state2 = Input(shape=(rnn_units2,))
 
-    fconv1 = Conv1D(128, 3, padding='same', activation='tanh', name='feature_conv1')
-    fconv2 = Conv1D(102, 3, padding='same', activation='tanh', name='feature_conv2')
+    fconv1 = Conv1D(128, 3, padding='same', activation='tanh', name='feature_conv1', trainable=False)
+    fconv2 = Conv1D(102, 3, padding='same', activation='tanh', name='feature_conv2', trainable=False)
 
-    embed = Embedding(256, embed_size, embeddings_initializer=PCMInit(), name='embed_sig')
+    embed = Embedding(256, embed_size, embeddings_initializer=PCMInit(), name='embed_sig', trainable=False)
     cpcm = Reshape((-1, embed_size*2))(embed(pcm))
-    embed2 = Embedding(256, embed_size, embeddings_initializer=PCMInit(), name='embed_exc')
+    embed2 = Embedding(256, embed_size, embeddings_initializer=PCMInit(), name='embed_exc', trainable=False)
     cexc = Reshape((-1, embed_size))(embed2(exc))
 
-    pembed = Embedding(256, 64, name='embed_pitch')
+    pembed = Embedding(256, 64, name='embed_pitch', trainable=False)
     cat_feat = Concatenate()([feat, Reshape((-1, 64))(pembed(pitch))])
     
     cfeat = fconv2(fconv1(cat_feat))
 
-    fdense1 = Dense(128, activation='tanh', name='feature_dense1')
-    fdense2 = Dense(128, activation='tanh', name='feature_dense2')
+    fdense1 = Dense(128, activation='tanh', name='feature_dense1', trainable=False)
+    fdense2 = Dense(128, activation='tanh', name='feature_dense2', trainable=False)
 
     cfeat = Add()([cfeat, cat_feat])
     cfeat = fdense2(fdense1(cfeat))
@@ -122,9 +122,9 @@ def new_lpcnet_model(rnn_units1=384, rnn_units2=16, nb_used_features = 38, use_g
     rep = Lambda(lambda x: K.repeat_elements(x, 160, 1))
 
     if use_gpu:
-        rnn = CuDNNGRU(rnn_units1, return_sequences=True, return_state=True, name='gru_a')
+        rnn = CuDNNGRU(rnn_units1, return_sequences=True, return_state=True, name='gru_a', trainable=False)
     else:
-        rnn = GRU(rnn_units1, return_sequences=True, return_state=True, recurrent_activation="sigmoid", reset_after='true', name='gru_a')
+        rnn = GRU(rnn_units1, return_sequences=True, return_state=True, recurrent_activation="sigmoid", reset_after='true', name='gru_a', trainable=False)
 
     tt_input_shape=[16, 32]
     tt_output_shape=[4, 4]
@@ -133,7 +133,7 @@ def new_lpcnet_model(rnn_units1=384, rnn_units2=16, nb_used_features = 38, use_g
     rnn2 = TT_GRU(tt_input_shape=tt_input_shape, tt_output_shape=tt_output_shape, tt_ranks=tt_ranks,return_sequences=True, return_state=True, name='tt_gru_b')
     
     rnn_in = Concatenate()([cpcm, cexc, rep(cfeat)])
-    md = MDense(pcm_levels, activation='softmax', name='dual_fc')
+    md = MDense(pcm_levels, activation='softmax', name='dual_fc', trainable=False)
     gru_out1, _ = rnn(rnn_in)
     gru_out2, _ = rnn2(Concatenate()([gru_out1, rep(cfeat)]))
     ulaw_prob = md(gru_out2)
