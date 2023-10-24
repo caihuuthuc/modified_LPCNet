@@ -8,8 +8,9 @@ tt_output_shape=[4, 4]
 
 tt_ranks=[1, 4, 1]
 rnn_layer = TT_GRU(tt_input_shape=tt_input_shape, tt_output_shape=tt_output_shape, tt_ranks=tt_ranks, debug=True)
-rnn_layer(inp)
+out = rnn_layer(inp)
 
+print(out)
 # tt_ranks2=[1, 8, 1]
 # rnn_layer2 = TT_GRU(tt_input_shape=tt_input_shape, tt_output_shape=tt_output_shape, tt_ranks=tt_ranks2, debug=True)
 # rnn_layer2(inp)
