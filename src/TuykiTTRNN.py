@@ -209,6 +209,8 @@ class TT_GRU(SimpleRNN):
             self.shapes[k] = (self.tt_input_shape[k] * self.tt_ranks[k + 1],
                               self.tt_ranks[k] * self.tt_output_shape[k])
             self.cores[k] = self.kernel[self.inds[k]:self.inds[k] + np.prod(self.shapes[k])]
+            if self.debug:
+                print ('self.core[%d] = ' % k, self.cores[k].shape)
             if 0 < k:
                 self.inds[k - 1] = self.inds[k] + np.prod(self.shapes[k])
         if self.debug:
