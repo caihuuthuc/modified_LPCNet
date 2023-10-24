@@ -24,8 +24,8 @@ from keras import backend
 from keras import constraints
 from keras import initializers
 from keras import regularizers
-from tensorflow.keras.engine import base_layer
-from tensorflow.keras.engine.input_spec import InputSpec
+from tensorflow.python.keras.engine import base_layer
+from tensorflow.python.keras.engine.input_spec import InputSpec
 from keras.layers.rnn import gru_lstm_utils
 from keras.layers.rnn import rnn_utils
 from keras.layers.rnn.base_rnn import RNN
