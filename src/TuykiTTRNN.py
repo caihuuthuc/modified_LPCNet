@@ -113,24 +113,24 @@ class TT_GRU(SimpleRNN):
 
         self._units = units
         self._activation = activations.get(activation)
-        self.recurrent_activation = activations.get(recurrent_activation)
-        self.use_bias = use_bias
+        self._recurrent_activation = activations.get(recurrent_activation)
+        self._use_bias = use_bias
 
-        self.kernel_initializer = initializers.get(kernel_initializer)
-        self.recurrent_initializer = initializers.get(recurrent_initializer)
-        self.bias_initializer = initializers.get(bias_initializer)
+        self._kernel_initializer = initializers.get(kernel_initializer)
+        self._recurrent_initializer = initializers.get(recurrent_initializer)
+        self._bias_initializer = initializers.get(bias_initializer)
 
-        self.kernel_regularizer = regularizers.get(kernel_regularizer)
-        self.recurrent_regularizer = regularizers.get(recurrent_regularizer)
-        self.bias_regularizer = regularizers.get(bias_regularizer)
-        self.activity_regularizer = regularizers.get(activity_regularizer)
+        self._kernel_regularizer = regularizers.get(kernel_regularizer)
+        self._recurrent_regularizer = regularizers.get(recurrent_regularizer)
+        self._bias_regularizer = regularizers.get(bias_regularizer)
+        self._activity_regularizer = regularizers.get(activity_regularizer)
 
-        self.kernel_constraint = constraints.get(kernel_constraint)
-        self.recurrent_constraint = constraints.get(recurrent_constraint)
-        self.bias_constraint = constraints.get(bias_constraint)
+        self._kernel_constraint = constraints.get(kernel_constraint)
+        self._recurrent_constraint = constraints.get(recurrent_constraint)
+        self._bias_constraint = constraints.get(bias_constraint)
 
-        self.dropout = min(1., max(0., dropout))
-        self.recurrent_dropout = min(1., max(0., recurrent_dropout))
+        self._dropout = min(1., max(0., dropout))
+        self._recurrent_dropout = min(1., max(0., recurrent_dropout))
 
         self.state_spec = InputSpec(shape=(None, self._units))
         self.debug = debug
@@ -186,16 +186,16 @@ class TT_GRU(SimpleRNN):
                                self.tt_ranks[1:] * self.tt_ranks[:-1])
         local_cores_arr = np.random.randn(total_length)
         self.kernel = self.add_weight((total_length, ),
-                                      initializer=self.kernel_initializer,
+                                      initializer=self._kernel_initializer,
                                       name='kernel',
-                                      regularizer=self.kernel_regularizer,
-                                      constraint=self.kernel_constraint)
-        if self.use_bias:
+                                      regularizer=self._kernel_regularizer,
+                                      constraint=self._kernel_constraint)
+        if self._use_bias:
             self.bias = self.add_weight((np.prod(self.tt_output_shape), ),
-                                        initializer=self.bias_initializer,
+                                        initializer=self._bias_initializer,
                                         name='bias',
-                                        regularizer=self.bias_regularizer,
-                                        constraint=self.bias_constraint)
+                                        regularizer=self._bias_regularizer,
+                                        constraint=self._bias_constraint)
         else:
             self.bias = None
 
@@ -221,9 +221,9 @@ class TT_GRU(SimpleRNN):
         self.recurrent_kernel = self.add_weight(
             shape=(self._units, self._units*3),
             name='recurrent_kernel',
-            initializer=self.recurrent_initializer,
-            regularizer=self.recurrent_regularizer,
-            constraint=self.recurrent_constraint)
+            initializer=self._recurrent_initializer,
+            regularizer=self._recurrent_regularizer,
+            constraint=self._recurrent_constraint)
 
         self.inds = np.zeros(self.num_dim).astype('int32')
         self.shapes = np.zeros((self.num_dim, 2)).astype('int32')
@@ -250,12 +250,12 @@ class TT_GRU(SimpleRNN):
         constants = []
         constants.append([K.cast_to_floatx(1.) for _ in range(3)])
 
-        if 0. < self.recurrent_dropout < 1:
+        if 0. < self._recurrent_dropout < 1:
             ones = K.ones_like(K.reshape(inputs[:, 0, 0], (-1, 1)))
             ones = K.tile(ones, (1, self._units))
 
             def dropped_inputs():
-                return K.dropout(ones, self.recurrent_dropout)
+                return K.dropout(ones, self._recurrent_dropout)
             rec_dp_mask = [K.in_train_phase(dropped_inputs,
                                             ones,
                                             training=training) for _ in range(3)]
@@ -279,7 +279,7 @@ class TT_GRU(SimpleRNN):
 
         matrix_x = res
 
-        if self.use_bias:
+        if self._use_bias:
             matrix_x = K.bias_add(matrix_x, self.bias)
         matrix_inner = K.dot(h_tm1 * rec_dp_mask[0],
                              self.recurrent_kernel[:, :2 * self._units])
@@ -288,8 +288,8 @@ class TT_GRU(SimpleRNN):
         recurrent_z = matrix_inner[:, :self._units]
         recurrent_r = matrix_inner[:, self._units: 2 * self._units]
 
-        z = self.recurrent_activation(x_z + recurrent_z)
-        r = self.recurrent_activation(x_r + recurrent_r)
+        z = self._recurrent_activation(x_z + recurrent_z)
+        r = self._recurrent_activation(x_r + recurrent_r)
 
         x_h = matrix_x[:, 2 * self._units:]
         recurrent_h = K.dot(r * h_tm1 * rec_dp_mask[0],
@@ -297,26 +297,26 @@ class TT_GRU(SimpleRNN):
         hh = self._activation(x_h + recurrent_h)
 
         h = z * h_tm1 + (1 - z) * hh
-        if 0. < self.dropout + self.recurrent_dropout:
+        if 0. < self._dropout + self._recurrent_dropout:
             h._uses_learning_phase = True
         return h, [h]
 
     def get_config(self):
         config = {'units': self._units,
                   'activation': activations.serialize(self._activation),
-                  'recurrent_activation': activations.serialize(self.recurrent_activation),
-                  'use_bias': self.use_bias,
-                  'kernel_initializer': initializers.serialize(self.kernel_initializer),
-                  'recurrent_initializer': initializers.serialize(self.recurrent_initializer),
-                  'bias_initializer': initializers.serialize(self.bias_initializer),
-                  'kernel_regularizer': regularizers.serialize(self.kernel_regularizer),
-                  'recurrent_regularizer': regularizers.serialize(self.recurrent_regularizer),
-                  'bias_regularizer': regularizers.serialize(self.bias_regularizer),
-                  'activity_regularizer': regularizers.serialize(self.activity_regularizer),
-                  'kernel_constraint': constraints.serialize(self.kernel_constraint),
-                  'recurrent_constraint': constraints.serialize(self.recurrent_constraint),
-                  'bias_constraint': constraints.serialize(self.bias_constraint),
-                  'dropout': self.dropout,
-                  'recurrent_dropout': self.recurrent_dropout}
+                  'recurrent_activation': activations.serialize(self._recurrent_activation),
+                  'use_bias': self._use_bias,
+                  'kernel_initializer': initializers.serialize(self._kernel_initializer),
+                  'recurrent_initializer': initializers.serialize(self._recurrent_initializer),
+                  'bias_initializer': initializers.serialize(self._bias_initializer),
+                  'kernel_regularizer': regularizers.serialize(self._kernel_regularizer),
+                  'recurrent_regularizer': regularizers.serialize(self._recurrent_regularizer),
+                  'bias_regularizer': regularizers.serialize(self._bias_regularizer),
+                  'activity_regularizer': regularizers.serialize(self._activity_regularizer),
+                  'kernel_constraint': constraints.serialize(self._kernel_constraint),
+                  'recurrent_constraint': constraints.serialize(self._recurrent_constraint),
+                  'bias_constraint': constraints.serialize(self._bias_constraint),
+                  'dropout': self._dropout,
+                  'recurrent_dropout': self._recurrent_dropout}
         base_config = super(TT_GRU, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
