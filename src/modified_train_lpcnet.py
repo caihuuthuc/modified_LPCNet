@@ -73,5 +73,11 @@ del pred
 checkpoint = ModelCheckpoint('tt_lpcnet20_384_10_G16_{epoch:02d}.h5')
 
 #model.load_weights('lpcnet9b_384_10_G16_01.h5')
-model.compile(optimizer=Adam(0.001, amsgrad=True, decay=5e-5), loss='sparse_categorical_crossentropy')
+lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+    initial_learning_rate=0.001,
+    decay_steps=10000,
+    decay_rate=0.9)
+optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
+
+model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy')
 model.fit([in_data, in_exc, features, periods], out_exc, batch_size=batch_size, epochs=nb_epochs, validation_split=0.0, callbacks=[checkpoint, lpcnet.Sparsify(2000, 40000, 400, (0.05, 0.05, 0.2))])
