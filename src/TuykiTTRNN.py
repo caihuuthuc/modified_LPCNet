@@ -186,7 +186,8 @@ class TT_GRU(SimpleRNN):
         total_length = np.sum(self.tt_input_shape * self.tt_output_shape *
                                self.tt_ranks[1:] * self.tt_ranks[:-1])
         local_cores_arr = np.random.randn(total_length)
-        print(repr(total_length))
+        if self.debug:
+            print("total_length: ", total_length)
         self.kernel = self.add_weight(shape=(total_length, ),
                                       initializer=self._kernel_initializer,
                                       name='kernel',
