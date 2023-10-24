@@ -28,6 +28,6 @@ features = np.fromfile(feature_file, dtype='float32')
 features = features.reshape((-1, nb_features))
 
 for i in features.shape[0]:
-    feature = features[i,:]:
+    feature = features[i,:]
     print(feature.shape)
     break
