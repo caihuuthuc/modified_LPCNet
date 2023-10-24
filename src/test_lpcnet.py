@@ -100,11 +100,13 @@ for c in range(0, nb_frames):
             pcm[f*frame_size + i] = pred + ulaw2lin(iexc[0, 0, 0])
             fexc[0, 0, 0] = lin2ulaw(pcm[f*frame_size + i])
             mem = coef*mem + pcm[f*frame_size + i]
-            #print(mem)
-            np.array([np.round(mem)], dtype='int16').tofile(fout)
+            
+            #np.array([np.round(mem)], dtype='int16').tofile(fout)
             print("frame index c: ", c, "/", nb_frames, end="\t")
             print("feature index fr: ", fr, "/", feature_chunk_size, end="\t")
             print("i: ", i, "/", frame_size)
+
+             print(mem)
         skip = 0
 
 
