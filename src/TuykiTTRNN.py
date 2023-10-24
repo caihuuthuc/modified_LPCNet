@@ -89,7 +89,6 @@ class TT_GRU(SimpleRNN):
         - [Tensor Train Recurrent Neural Networks for Video Classification](https://arxiv.org/abs/1707.01786)
     """
     def __init__(self,
-                 units,
                  tt_input_shape, tt_output_shape, tt_ranks,
                  activation='tanh',
                  recurrent_activation='hard_sigmoid',
@@ -109,9 +108,9 @@ class TT_GRU(SimpleRNN):
                  debug=False,
                  init_seed=11111986,
                  **kwargs):
-        super(TT_GRU, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
-        self.units = units
+        self.units = np.prod(np.array(tt_output_shape))
         self.activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
         self.use_bias = use_bias
