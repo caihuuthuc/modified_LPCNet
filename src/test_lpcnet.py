@@ -106,7 +106,7 @@ for c in range(0, nb_frames):
             print("feature index fr: ", fr, "/", feature_chunk_size, end="\t")
             print("i: ", i, "/", frame_size)
 
-             print(mem)
+            print(mem)
         skip = 0
 
 
