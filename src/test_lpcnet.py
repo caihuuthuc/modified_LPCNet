@@ -102,7 +102,7 @@ for c in range(0, nb_frames):
             mem = coef*mem + pcm[f*frame_size + i]
             #print(mem)
             np.array([np.round(mem)], dtype='int16').tofile(fout)
-            print("frame index c: ", c)
+            print("frame index c: ", c, "feature index fr: ", fr, "i: ", i)
         skip = 0
 
 
