@@ -1,4 +1,5 @@
 from TuykiTTRNN import TT_GRU
+import numpy as np
 
 tt_input_shape=[16, 32]
 
