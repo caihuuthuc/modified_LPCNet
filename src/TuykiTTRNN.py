@@ -111,7 +111,7 @@ class TT_GRU(SimpleRNN):
                  **kwargs):
         super(TT_GRU, self).__init__(units = units, **kwargs)
 
-        self.units = units
+        self._units = units
         self.activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
         self.use_bias = use_bias
@@ -132,7 +132,7 @@ class TT_GRU(SimpleRNN):
         self.dropout = min(1., max(0., dropout))
         self.recurrent_dropout = min(1., max(0., recurrent_dropout))
 
-        self.state_spec = InputSpec(shape=(None, self.units))
+        self.state_spec = InputSpec(shape=(None, self._units))
         self.debug = debug
         self.init_seed = init_seed
 
@@ -219,7 +219,7 @@ class TT_GRU(SimpleRNN):
               , str(self.full_size) , ' = ' , str(self.compress_factor))
 
         self.recurrent_kernel = self.add_weight(
-            shape=(self.units, self.units*3),
+            shape=(self._units, self._units*3),
             name='recurrent_kernel',
             initializer=self.recurrent_initializer,
             regularizer=self.recurrent_regularizer,
@@ -252,7 +252,7 @@ class TT_GRU(SimpleRNN):
 
         if 0. < self.recurrent_dropout < 1:
             ones = K.ones_like(K.reshape(inputs[:, 0, 0], (-1, 1)))
-            ones = K.tile(ones, (1, self.units))
+            ones = K.tile(ones, (1, self._units))
 
             def dropped_inputs():
                 return K.dropout(ones, self.recurrent_dropout)
@@ -282,18 +282,18 @@ class TT_GRU(SimpleRNN):
         if self.use_bias:
             matrix_x = K.bias_add(matrix_x, self.bias)
         matrix_inner = K.dot(h_tm1 * rec_dp_mask[0],
-                             self.recurrent_kernel[:, :2 * self.units])
-        x_z = matrix_x[:, :self.units]
-        x_r = matrix_x[:, self.units: 2 * self.units]
-        recurrent_z = matrix_inner[:, :self.units]
-        recurrent_r = matrix_inner[:, self.units: 2 * self.units]
+                             self.recurrent_kernel[:, :2 * self._units])
+        x_z = matrix_x[:, :self._units]
+        x_r = matrix_x[:, self._units: 2 * self._units]
+        recurrent_z = matrix_inner[:, :self._units]
+        recurrent_r = matrix_inner[:, self._units: 2 * self._units]
 
         z = self.recurrent_activation(x_z + recurrent_z)
         r = self.recurrent_activation(x_r + recurrent_r)
 
-        x_h = matrix_x[:, 2 * self.units:]
+        x_h = matrix_x[:, 2 * self._units:]
         recurrent_h = K.dot(r * h_tm1 * rec_dp_mask[0],
-                            self.recurrent_kernel[:, 2 * self.units:])
+                            self.recurrent_kernel[:, 2 * self._units:])
         hh = self.activation(x_h + recurrent_h)
 
         h = z * h_tm1 + (1 - z) * hh
@@ -302,7 +302,7 @@ class TT_GRU(SimpleRNN):
         return h, [h]
 
     def get_config(self):
-        config = {'units': self.units,
+        config = {'units': self._units,
                   'activation': activations.serialize(self.activation),
                   'recurrent_activation': activations.serialize(self.recurrent_activation),
                   'use_bias': self.use_bias,
