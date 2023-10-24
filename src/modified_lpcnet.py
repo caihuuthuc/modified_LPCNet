@@ -10,6 +10,8 @@ import numpy as np
 import h5py
 import sys
 
+from TuykiTTRNN import TT_GRU
+
 from modified_tucker_mdense import MDense
 
 pcm_bits = 8
@@ -119,12 +121,16 @@ def new_lpcnet_model(rnn_units1=384, rnn_units2=16, nb_used_features = 38, use_g
     rep = Lambda(lambda x: K.repeat_elements(x, 160, 1))
 
     if use_gpu:
-        rnn = CuDNNGRU(rnn_units1, return_sequences=True, return_state=True, name='gru_a')
-        rnn2 = CuDNNGRU(rnn_units2, return_sequences=True, return_state=True, name='gru_b')
+        rnn = TT_GRU(rnn_units1, return_sequences=True, return_state=True, name='gru_a')
     else:
         rnn = GRU(rnn_units1, return_sequences=True, return_state=True, recurrent_activation="sigmoid", reset_after='true', name='gru_a')
-        rnn2 = GRU(rnn_units2, return_sequences=True, return_state=True, recurrent_activation="sigmoid", reset_after='true', name='gru_b')
 
+    tt_input_shape=[16, 32]
+    tt_output_shape=[4, 4]
+    tt_ranks=[1, 4, 1]
+    
+    rnn2 = TT_GRU(tt_input_shape=tt_input_shape, tt_output_shape=tt_output_shape, tt_ranks=tt_ranks,return_sequences=True, return_state=True, name='tt_gru_b')
+    
     rnn_in = Concatenate()([cpcm, cexc, rep(cfeat)])
     md = MDense(pcm_levels, activation='softmax', name='dual_fc')
     gru_out1, _ = rnn(rnn_in)
