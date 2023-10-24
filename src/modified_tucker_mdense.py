@@ -4,7 +4,7 @@ from tensorflow.python.keras import activations, initializers, regularizers, con
 import numpy as np
 import math
 
-class MDense(Layer):
+class Tucker_MDense(Layer):
     
     def __init__(self, outputs,
                  channels=2,
