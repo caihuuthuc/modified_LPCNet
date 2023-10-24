@@ -80,4 +80,4 @@ lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
 optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
 model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy')
-model.fit([in_data, in_exc, features, periods], out_exc, batch_size=batch_size, epochs=nb_epochs, validation_split=0.0, callbacks=[checkpoint, lpcnet.Sparsify(2000, 40000, 400, (0.05, 0.05, 0.2))])
+model.fit([in_data, in_exc, features, periods], out_exc, batch_size=batch_size, epochs=nb_epochs, validation_split=0.0, callbacks=[checkpoint, modified_lpcnet.Sparsify(2000, 40000, 400, (0.05, 0.05, 0.2))])
