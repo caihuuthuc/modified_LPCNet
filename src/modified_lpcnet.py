@@ -123,9 +123,11 @@ def new_lpcnet_model(rnn_units1=384, rnn_units2=16, nb_used_features = 38, use_g
 
     if use_gpu:
         rnn = CuDNNGRU(rnn_units1, return_sequences=True, return_state=True, name='gru_a', trainable=False)
+        old_rnn2 = CuDNNGRU(rnn_units2, return_sequences=True, return_state=True, name='gru_b')
     else:
         rnn = GRU(rnn_units1, return_sequences=True, return_state=True, recurrent_activation="sigmoid", reset_after='true', name='gru_a', trainable=False)
-
+        old_rnn2 = GRU(rnn_units2, return_sequences=True, return_state=True, recurrent_activation="sigmoid", reset_after='true', name='gru_b')
+    
     tt_input_shape=[16, 32]
     tt_output_shape=[4, 4]
     tt_ranks=[1, 4, 1]
