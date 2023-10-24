@@ -109,7 +109,7 @@ class TT_GRU(SimpleRNN):
                  debug=False,
                  init_seed=11111986,
                  **kwargs):
-        super().__init__(units = units, **kwargs)
+        super(TT_GRU, self).__init__(units = units, **kwargs)
 
         self.units = units
         self.activation = activations.get(activation)
