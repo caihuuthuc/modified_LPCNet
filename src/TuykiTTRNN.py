@@ -106,7 +106,6 @@ class TT_RNN(SimpleRNN):
                  **kwargs):
         super(TT_RNN, self).__init__(**kwargs)
 
-        self.units = np.prod(np.array(tt_output_shape))
         self.activation = activations.get(activation)
         self.use_bias = use_bias
 
@@ -390,7 +389,6 @@ class TT_GRU(SimpleRNN):
                  **kwargs):
         super(TT_GRU, self).__init__(**kwargs)
 
-        self.units = np.prod(np.array(tt_output_shape))
         self.activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
         self.use_bias = use_bias
@@ -686,7 +684,6 @@ class TT_LSTM(SimpleRNN):
                  **kwargs):
         super(TT_LSTM, self).__init__(**kwargs)
 
-        self.units = np.prod(np.array(tt_output_shape))
         self.activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
         self.use_bias = use_bias
