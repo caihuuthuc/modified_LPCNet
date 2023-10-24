@@ -1,4 +1,4 @@
-import modified_lpcnet as lpcnet
+import modified_lpcnet
 import sys
 import numpy as np
 from keras.optimizers import Adam
@@ -23,7 +23,7 @@ nb_epochs = 10
 # Try reducing batch_size if you run out of memory on your GPU
 batch_size = 64
 
-model, _, _ = lpcnet.new_lpcnet_model()
+model, _, _ = modified_lpcnet.new_lpcnet_model()
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 model.summary()
