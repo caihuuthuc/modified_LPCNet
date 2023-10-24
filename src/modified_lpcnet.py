@@ -14,7 +14,6 @@ import sys
 
 from TuykiTTRNN import TT_GRU
 
-from modified_tucker_mdense import MDense
 
 pcm_bits = 8
 embed_size = 128
