@@ -112,7 +112,7 @@ class TT_GRU(SimpleRNN):
         super(TT_GRU, self).__init__(units = units, **kwargs)
 
         self._units = units
-        self.activation = activations.get(activation)
+        self._activation = activations.get(activation)
         self.recurrent_activation = activations.get(recurrent_activation)
         self.use_bias = use_bias
 
@@ -294,7 +294,7 @@ class TT_GRU(SimpleRNN):
         x_h = matrix_x[:, 2 * self._units:]
         recurrent_h = K.dot(r * h_tm1 * rec_dp_mask[0],
                             self.recurrent_kernel[:, 2 * self._units:])
-        hh = self.activation(x_h + recurrent_h)
+        hh = self._activation(x_h + recurrent_h)
 
         h = z * h_tm1 + (1 - z) * hh
         if 0. < self.dropout + self.recurrent_dropout:
@@ -303,7 +303,7 @@ class TT_GRU(SimpleRNN):
 
     def get_config(self):
         config = {'units': self._units,
-                  'activation': activations.serialize(self.activation),
+                  'activation': activations.serialize(self._activation),
                   'recurrent_activation': activations.serialize(self.recurrent_activation),
                   'use_bias': self.use_bias,
                   'kernel_initializer': initializers.serialize(self.kernel_initializer),
