@@ -24,7 +24,7 @@ SOFTWARE.
 """
 
 import numpy as np
-from keras.layers import RNN
+from keras.layers import SimpleRNN
 from keras import backend as K
 from tensorflow.keras.layers import InputSpec
 
@@ -34,7 +34,7 @@ from keras import regularizers
 from keras import constraints
 
 
-class TT_RNN(RNN):
+class TT_RNN(SimpleRNN):
     """
     # Arguments
         tt_input_shape: a list of shapes, the product of which should be equal to the input dimension
@@ -313,7 +313,7 @@ class TT_RNN(RNN):
         return dict(list(base_config.items()) + list(config.items()))
 
 
-class TT_GRU(RNN):
+class TT_GRU(SimpleRNN):
     """
     # Arguments
         tt_input_shape: a list of shapes, the product of which should be equal to the input dimension
@@ -602,7 +602,7 @@ class TT_GRU(RNN):
 
 
 
-class TT_LSTM(RNN):
+class TT_LSTM(SimpleRNN):
     """
     # Arguments
         tt_input_shape: a list of shapes, the product of which should be equal to the input dimension
