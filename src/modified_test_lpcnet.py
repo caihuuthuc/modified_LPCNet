@@ -1,33 +1,46 @@
-import lpcnet
-import sys
-import numpy as np
-from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
-from ulaw import ulaw2lin, lin2ulaw
-import keras.backend as K
-import h5py
+order = 16
 
-import tensorflow as tf
-from tensorflow.python.keras.backend import set_session
-config = tf.compat.v1.ConfigProto()
-config.gpu_options.per_process_gpu_memory_fraction = 0.2
-set_session(tf.compat.v1.Session(config=config))
+pcm = np.zeros((nb_frames*pcm_chunk_size, ))
+fexc = np.zeros((1, 1, 2), dtype='float32')
+iexc = np.zeros((1, 1, 1), dtype='int16')
+state1 = np.zeros((1, model.rnn_units1), dtype='float32')
+state2 = np.zeros((1, model.rnn_units2), dtype='float32')
 
-model, enc, dec = lpcnet.new_lpcnet_model()
+mem = 0
+coef = 0.85
 
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
-#model.summary()
+fout = open(out_file, 'wb')
 
-feature_file = sys.argv[1]
-out_file = sys.argv[2]
-frame_size = 160
-nb_features = 55
-nb_used_features = model.nb_used_features
+mems = list()
 
-features = np.fromfile(feature_file, dtype='float32')
-features = features.reshape((-1, nb_features))
+skip = order + 1
+for c in range(0, nb_frames):
+    cfeat = enc.predict([features[c:c+1, :, :nb_used_features], periods[c:c+1, :, :]])
+    for fr in range(0, feature_chunk_size):
+        f = c*feature_chunk_size + fr
+        a = features[c, fr, nb_features-order:]
+        for i in range(skip, frame_size):
+            pred = -sum(a*pcm[f*frame_size + i - 1:f*frame_size + i - order-1:-1])
+            fexc[0, 0, 1] = lin2ulaw(pred)
 
-for i in range(features.shape[0]):
-    feature = features[i,:]
-    print(feature.shape)
-    break
+            p, state1, state2 = dec.predict([fexc, iexc, cfeat[:, fr:fr+1, :], state1, state2])
+            #Lower the temperature for voiced frames to reduce noisiness
+            p *= np.power(p, np.maximum(0, 1.5*features[c, fr, 37] - .5))
+            p = p/(1e-18 + np.sum(p))
+            #Cut off the tail of the remaining distribution
+            p = np.maximum(p-0.002, 0).astype('float64')
+            p = p/(1e-8 + np.sum(p))
+
+            iexc[0, 0, 0] = np.argmax(np.random.multinomial(1, p[0,0,:], 1))
+            pcm[f*frame_size + i] = pred + ulaw2lin(iexc[0, 0, 0])
+            fexc[0, 0, 0] = lin2ulaw(pcm[f*frame_size + i])
+            mem = coef*mem + pcm[f*frame_size + i]
+            
+            #np.array([np.round(mem)], dtype='int16').tofile(fout)
+            print("frame index c: ", c, "/", nb_frames, end="\t")
+            print("feature index fr: ", fr, "/", feature_chunk_size, end="\t")
+            print("i: ", i, "/", frame_size)
+
+            print(mem)
+        skip = 0
+
