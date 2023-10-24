@@ -1,5 +1,4 @@
-from TTLayer import *
-from TuykiTTRNN import *
+from TuykiTTRNN import TT_GRU
 
 tt_input_shape=[16, 32]
 
