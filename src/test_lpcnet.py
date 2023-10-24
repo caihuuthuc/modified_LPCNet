@@ -103,6 +103,7 @@ for c in range(0, nb_frames):
             # print(mem)
             # np.array([np.round(mem)], dtype='int16').tofile(fout)
             mems.append(np.round(mem))
+            print("frame index c: ", c)
         skip = 0
 
 
