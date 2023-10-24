@@ -1,4 +1,4 @@
-import modified_lpcnet
+import modified_lpcnet as lpcnet
 import sys
 import numpy as np
 from keras.optimizers import Adam
