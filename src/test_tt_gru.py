@@ -13,9 +13,10 @@ rnn_layer = TT_GRU(tt_input_shape=tt_input_shape, tt_output_shape=tt_output_shap
 with tf.GradientTape() as tape:
   out = rnn_layer(inp)
 dy_dx = tape.gradient(out, inp)
+print(dy_dx)
 print(dy_dx.numpy())
 
-print("output shape: ", out.shape)
+# print("output shape: ", out.shape)
 
 
 print("------------------------------------------------------------------------------------------------")
