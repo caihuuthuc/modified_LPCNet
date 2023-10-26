@@ -30,7 +30,8 @@ import sys
 import numpy as np
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
-from keras.layers import Layer, GRU, CuDNNGRU, Dense, Conv1D, Embedding
+from keras.layers import Layer, GRU, Dense, Conv1D, Embedding
+from keras.layers import GRU as CuDNNGRU
 from ulaw import ulaw2lin, lin2ulaw
 from mdense import MDense
 import keras.backend as K
