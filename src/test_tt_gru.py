@@ -10,7 +10,9 @@ tt_ranks=[1, 4, 1]
 rnn_layer = TT_GRU(tt_input_shape=tt_input_shape, tt_output_shape=tt_output_shape, tt_ranks=tt_ranks, debug=True)
 out = rnn_layer(inp)
 
-print(out.shape)
+print("output shape: " out.shape)
+
+print("------------------------------------------------------------------------------------------------")
 
 with open('/content/drive/MyDrive/recurrent_kernel_weight_of_grub.npy', 'rb') as f:
         recurrent_kernel_weight = np.load(f)
