@@ -1,6 +1,7 @@
 from TuykiTTRNN import TT_GRU
 from keras import initializers
 import numpy as np
+import tensorflow as tf
 
 inp = np.random.rand(11, 1, 16*32)
 tt_input_shape=[16, 32]
@@ -8,9 +9,14 @@ tt_output_shape=[4, 4]
 
 tt_ranks=[1, 8, 1]
 rnn_layer = TT_GRU(tt_input_shape=tt_input_shape, tt_output_shape=tt_output_shape, tt_ranks=tt_ranks, debug=True)
-out = rnn_layer(inp)
+
+with tf.GradientTape() as tape:
+  out = rnn_layer(inp)
+dy_dx = tape.gradient(out, inp)
+print(dy_dx.numpy())
 
 print("output shape: ", out.shape)
+
 
 print("------------------------------------------------------------------------------------------------")
 
