@@ -3,7 +3,7 @@ from keras import initializers
 import numpy as np
 import tensorflow as tf
 
-inp = tf.Variable(np.random.rand(11, 1, 16*32), dtype=float32)
+inp = tf.Variable(np.random.rand(11, 1, 16*32), dtype=float)
 tt_input_shape=[16, 32]
 tt_output_shape=[4, 4]
 
