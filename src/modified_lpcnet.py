@@ -134,10 +134,9 @@ def new_lpcnet_model(rnn_units1=384, rnn_units2=16, nb_used_features = 38, use_g
     with open('/content/drive/MyDrive/recurrent_kernel_weight_of_grub.npy', 'rb') as f:
         recurrent_kernel_weight = np.load(f)
     
-    rnn2 = TT_GRU(tt_input_shape=tt_input_shape, tt_output_shape=tt_output_shape, tt_ranks=tt_ranks, 
-                  return_sequences=True, return_state=True, 
-                  recurrent_regularizer=initializers.Constant(recurrent_kernel_weight),
-                  name='tt_gru_b')
+    rnn2 = TT_GRU(tt_input_shape=tt_input_shape, tt_output_shape=tt_output_shape, tt_ranks=tt_ranks, return_sequences=True, return_state=True, recurrent_initializer=initializers.Constant(recurrent_kernel_weight), name='tt_gru_b')
+                  
+                  
     
     rnn_in = Concatenate()([cpcm, cexc, rep(cfeat)])
     md = MDense(pcm_levels, activation='softmax', name='dual_fc', trainable=False)
