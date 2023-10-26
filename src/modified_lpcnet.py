@@ -5,6 +5,7 @@ from keras.models import Model
 from keras.layers import Input, GRU, Dense, Embedding, Reshape, Concatenate, Lambda, Conv1D, Multiply, Add, Bidirectional, MaxPooling1D, Activation
 from keras.layers import GRU as CuDNNGRU
 from keras import backend as K
+from keras import initializers
 from keras.initializers import Initializer
 from keras.callbacks import Callback
 from mdense import MDense
