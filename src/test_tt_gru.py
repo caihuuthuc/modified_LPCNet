@@ -10,7 +10,7 @@ tt_ranks=[1, 4, 1]
 rnn_layer = TT_GRU(tt_input_shape=tt_input_shape, tt_output_shape=tt_output_shape, tt_ranks=tt_ranks, debug=True)
 out = rnn_layer(inp)
 
-print("output shape: " out.shape)
+print("output shape: ", out.shape)
 
 print("------------------------------------------------------------------------------------------------")
 
