@@ -1,5 +1,5 @@
 from TuykiTTRNN import TT_GRU
-from tensorflow.keras import initializers
+from keras import initializers
 import numpy as np
 
 inp = np.random.rand(11, 1, 16*32)
