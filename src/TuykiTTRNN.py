@@ -230,7 +230,7 @@ class TT_GRU(SimpleRNN):
             name='recurrent_kernel',
             initializer=self._recurrent_initializer,
             regularizer=self._recurrent_regularizer,
-            constraint=self._recurrent_constraint)
+            constraint=self._recurrent_constraint, trainable=False)
         if self.debug:
             print("self.recurrent_kernel shape:", self.recurrent_kernel.shape)
         self.built = True
