@@ -129,7 +129,7 @@ def new_lpcnet_model(rnn_units1=384, rnn_units2=16, nb_used_features = 38, use_g
     
     tt_input_shape=[16, 32]
     tt_output_shape=[4, 4]
-    tt_ranks=[1, 4, 1]
+    tt_ranks=[1, 8, 1]
 
     with open('/content/drive/MyDrive/recurrent_kernel_weight_of_grub.npy', 'rb') as f:
         recurrent_kernel_weight = np.load(f)
