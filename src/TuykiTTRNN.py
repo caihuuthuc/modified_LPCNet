@@ -199,6 +199,8 @@ class TT_GRU(SimpleRNN):
                                         name='bias',
                                         regularizer=self._bias_regularizer,
                                         constraint=self._bias_constraint)
+            if self.debug:
+                print("self.bias shape: ", self.bias.shape)
         else:
             self.bias = None
 
