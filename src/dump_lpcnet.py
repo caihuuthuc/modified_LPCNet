@@ -220,8 +220,8 @@ if len(sys.argv) > 2:
     cfile = sys.argv[2];
     hfile = sys.argv[3];
 else:
-    cfile = 'nnet_data.c'
-    hfile = 'nnet_data.h'
+    cfile = '/content/drive/MyDrive/nnet_data.c'
+    hfile = '/content/drive/MyDrive/nnet_data.h'
 
 
 f = open(cfile, 'w')
