@@ -21,7 +21,7 @@ set_session(tf.compat.v1.Session(config=config))
 nb_epochs = 2
 
 # Try reducing batch_size if you run out of memory on your GPU
-batch_size = 512
+batch_size = 256
 
 model, _, _ = modified_lpcnet.new_lpcnet_model()
 
