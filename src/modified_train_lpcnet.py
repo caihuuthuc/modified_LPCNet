@@ -18,10 +18,10 @@ config.gpu_options.per_process_gpu_memory_fraction = 0.44
 
 set_session(tf.compat.v1.Session(config=config))
 
-nb_epochs = 10
+nb_epochs = 2
 
 # Try reducing batch_size if you run out of memory on your GPU
-batch_size = 64
+batch_size = 128
 
 model, _, _ = modified_lpcnet.new_lpcnet_model()
 
@@ -70,12 +70,12 @@ del sig
 del pred
 
 # dump models to disk as we go
-checkpoint = ModelCheckpoint('tt_lpcnet20_384_10_G16_{epoch:02d}.h5')
+checkpoint = ModelCheckpoint('/content/drive/MyDrive/tt_lpcnet20_384_10_G16_{epoch:02d}.h5')
 
 #model.load_weights('lpcnet9b_384_10_G16_01.h5')
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
     initial_learning_rate=0.001,
-    decay_steps=10000,
+    decay_steps=1000,
     decay_rate=0.9)
 optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
