@@ -230,7 +230,7 @@ class TT_GRU(SimpleRNN):
             regularizer=self._recurrent_regularizer,
             constraint=self._recurrent_constraint)
         if self.debug:
-            print(self.recurrent_kernel.shape)
+            print("self.recurrent_kernel shape:", self.recurrent_kernel.shape)
         self.built = True
 
     def preprocess_input(self, x, training=None):
