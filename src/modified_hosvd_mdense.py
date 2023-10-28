@@ -50,11 +50,11 @@ class MDense(Layer):
 
         with open('/content/drive/MyDrive/factor_2_kernel_weight_of_dualfc.npy', 'rb') as f:
             factor_2_weight = np.load(f)
-        
-        self.core     = tf.Variable(initializer=initializers.Constant(core_weight), name='hosvd_core', trainable=True)
-        self.factor_0 = tf.Variable(initializer=initializers.Constant(factor_0_weight), name='hosvd_factor_0', trainable=True)
-        self.factor_1 = tf.Variable(initializer=initializers.Constant(factor_1_weight), name='hosvd_factor_1', trainable=True)
-        self.factor_2 = tf.Variable(initializer=initializers.Constant(factor_2_weight), name='hosvd_factor_2', trainable=True)
+
+        self.core     = tf.Variable(initial_value = core_weight, name='hosvd_core', trainable=True)
+        self.factor_0 = tf.Variable(initial_value = factor_0_weight, name='hosvd_factor_0', trainable=True)
+        self.factor_1 = tf.Variable(initial_value = factor_1_weight, name='hosvd_factor_1', trainable=True)
+        self.factor_2 = tf.Variable(initial_value = factor_2_weight, name='hosvd_factor_2', trainable=True)
 
         self.kernel = self.add_weight(shape=(self.units, input_dim, self.channels), # Expected (pcm_levels ~ 2**8=256, 54, 2)
                                       initializer=self.kernel_initializer,
