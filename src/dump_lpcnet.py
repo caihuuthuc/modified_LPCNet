@@ -214,7 +214,7 @@ model, _, _ = lpcnet.new_lpcnet_model(rnn_units1=384, use_gpu=False)
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 #model.summary()
 
-model.load_weights(sys.argv[1])
+model.load_weights(sys.argv[1], by_name=True, skip_mismatch=True)
 
 if len(sys.argv) > 2:
     cfile = sys.argv[2];
