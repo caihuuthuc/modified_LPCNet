@@ -18,10 +18,10 @@ config.gpu_options.per_process_gpu_memory_fraction = 0.44
 
 set_session(tf.compat.v1.Session(config=config))
 
-nb_epochs = 20
+nb_epochs = 5
 
 # Try reducing batch_size if you run out of memory on your GPU
-batch_size = 128
+batch_size = 512
 
 model, _, _ = modified_lpcnet.new_lpcnet_model()
 
