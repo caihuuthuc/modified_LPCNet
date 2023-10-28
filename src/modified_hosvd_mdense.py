@@ -2,6 +2,7 @@ from keras import backend as K
 from tensorflow.keras.layers import Layer, InputSpec
 from tensorflow.python.keras import activations, initializers, regularizers, constraints
 import numpy as np
+import tensorflow as tf
 import math
 
 class MDense(Layer):
