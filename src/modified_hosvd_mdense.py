@@ -4,8 +4,7 @@ from tensorflow.python.keras import activations, initializers, regularizers, con
 import numpy as np
 import math
 
-class Modified_MDense(Layer):
-    
+class MDense(Layer):
     def __init__(self, outputs,
                  channels=2,
                  activation=None,
@@ -39,43 +38,53 @@ class Modified_MDense(Layer):
         assert len(input_shape) >= 2
         input_dim = input_shape[-1]
 
-        self.core = tf.Variable(initial_value=core_weight,trainable=False)
-        self.factor_0 = tf.Variable(initial_value=factor_0_weight,trainable=False)
-        self.factor_1 = tf.Variable(initial_value=factor_1_weight,trainable=False)
-        self.factor_2 = tf.Variable(initial_value=factor_2_weight,trainable=False)
+        with open('/content/drive/MyDrive/core_kernel_weight_of_dualfc.npy', 'rb') as f:
+            core_weight = np.load(f)
 
-        self.bias = tf.Variable(initial_value=bias_weight,trainable=False)
-        self.factor = tf.Variable(initial_value=factor_weight,trainable=False)
+        with open('/content/drive/MyDrive/factor_0_weight_of_dualfc.npy', 'rb') as f:
+            factor_0_weight = np.load(f)
 
+        with open('/content/drive/MyDrive/factor_1_weight_of_dualfc.npy', 'rb') as f:
+            factor_1_weight = np.load(f)
 
-        # self.kernel = self.add_weight(shape=(self.units, input_dim, self.channels), # Expected (pcm_levels ~ 2**8=256, 54, 2)
-        #                               initializer=self.kernel_initializer,
-        #                               name='kernel',
-        #                               regularizer=self.kernel_regularizer,
-        #                               constraint=self.kernel_constraint)
-        # if self.use_bias:
-        #     self.bias = self.add_weight(shape=(self.units, self.channels), # Expected (pcm_levels ~ 2**8=256, 2)
-        #                                 initializer=self.bias_initializer,
-        #                                 name='bias',
-        #                                 regularizer=self.bias_regularizer,
-        #                                 constraint=self.bias_constraint)
-        # else:
-        #     self.bias = None
-        # self.factor = self.add_weight(shape=(self.units, self.channels), # Expected (pcm_levels ~ 2**8=256, 2)
-        #                             initializer='ones',
-        #                             name='factor',
-        #                             regularizer=self.bias_regularizer,
-        #                             constraint=self.bias_constraint)
+        with open('/content/drive/MyDrive/factor_2_weight_of_dualfc.npy', 'rb') as f:
+            factor_2_weight = np.load(f)
+        
+        self.core     = tf.Variable(initializer=initializers.Constant(core_weight), name='hosvd_core', trainable=True)
+        self.factor_0 = tf.Variable(initializer=initializers.Constant(factor_0_weight), name='hosvd_factor_0', trainable=True)
+        self.factor_1 = tf.Variable(initializer=initializers.Constant(factor_1_weight), name='hosvd_factor_1', trainable=True)
+        self.factor_2 = tf.Variable(initializer=initializers.Constant(factor_2_weight), name='hosvd_factor_2', trainable=True)
+
+        self.kernel = self.add_weight(shape=(self.units, input_dim, self.channels), # Expected (pcm_levels ~ 2**8=256, 54, 2)
+                                      initializer=self.kernel_initializer,
+                                      name='kernel',
+                                      regularizer=self.kernel_regularizer,
+                                      constraint=self.kernel_constraint)
+        if self.use_bias:
+            self.bias = self.add_weight(shape=(self.units, self.channels), # Expected (pcm_levels ~ 2**8=256, 2)
+                                        initializer=self.bias_initializer,
+                                        name='bias',
+                                        regularizer=self.bias_regularizer,
+                                        constraint=self.bias_constraint,
+                                        trainable=False)
+        else:
+            self.bias = None
+        self.factor = self.add_weight(shape=(self.units, self.channels), # Expected (pcm_levels ~ 2**8=256, 2)
+                                    initializer='ones',
+                                    name='factor',
+                                    regularizer=self.bias_regularizer,
+                                    constraint=self.bias_constraint, 
+                                    trainable=False)
         self.input_spec = InputSpec(min_ndim=2, axes={-1: input_dim})
         self.built = True
 
 
     def call(self, inputs):
-        r0 = np.einsum('ijn,ki->kjn', self.core, self.factor_0)
-        r01 = np.einsum('ijn,kj->ikn', r0, self.factor_1)
-        kernel = np.einsum('ijn,kn->ijk', r01, self.factor_2)
+        r0 = tf.einsum('ijn,ki->kjn', self.core, self.factor_0)
+        r01 = tf.einsum('ijn,kj->ikn', r0, self.factor_1)
+        self.kernel = tf.einsum('ijn,kn->ijk', r01, self.factor_2)
 
-        output = K.dot(inputs, kernel)
+        output = K.dot(inputs, self.kernel)
         if self.use_bias:
             output = output + self.bias
         output = K.tanh(output) * self.factor
