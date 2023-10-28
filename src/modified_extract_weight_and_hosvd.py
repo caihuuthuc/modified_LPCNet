@@ -26,7 +26,7 @@ model, enc, dec = lpcnet.new_lpcnet_model(use_gpu=False)
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 
-model.load_weights('/content/drive/MyDrive/lpcnet20_384_10_G16_02.h5')
+model.load_weights('/content/drive/MyDrive/lpcnet20_384_10_G16_09.h5')
 
 # names = [weight.name for layer in model.layers for weight in layer.weights]
 # print(names)
