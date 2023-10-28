@@ -26,7 +26,11 @@ batch_size = 512
 model, _, _ = modified_lpcnet.new_lpcnet_model()
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
-model.load_weights('/content/drive/MyDrive/Oct26_lpcnet20_384_10_G16_02.h5', by_name=True, skip_mismatch = True)
+# model.load_weights('/content/drive/MyDrive/Oct26_lpcnet20_384_10_G16_02.h5', by_name=True, skip_mismatch = True)
+model.load_weights('/content/drive/MyDrive/tt_lpcnet20_384_10_G16_05.h5')
+
+
+
 model.summary()
 
 feature_file = sys.argv[1]
