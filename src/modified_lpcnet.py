@@ -8,13 +8,12 @@ from keras import backend as K
 from keras import initializers
 from keras.initializers import Initializer
 from keras.callbacks import Callback
-from mdense import MDense
+
 import numpy as np
 import h5py
 import sys
 
-from TuykiTTRNN import TT_GRU
-
+from modified_hosvd_mdense import MDense
 
 pcm_bits = 8
 embed_size = 128
@@ -124,22 +123,15 @@ def new_lpcnet_model(rnn_units1=384, rnn_units2=16, nb_used_features = 38, use_g
 
     if use_gpu:
         rnn = CuDNNGRU(rnn_units1, return_sequences=True, return_state=True, name='gru_a', trainable=False)
+        rnn2 = CuDNNGRU(rnn_units2, return_sequences=True, return_state=True, name='gru_b', trainable=False)
+    
     else:
         rnn = GRU(rnn_units1, return_sequences=True, return_state=True, recurrent_activation="sigmoid", reset_after='true', name='gru_a', trainable=False)
-    
-    tt_input_shape=[16, 32]
-    tt_output_shape=[4, 4]
-    tt_ranks=[1, 8, 1]
+        rnn2 = GRU(rnn_units2, return_sequences=True, return_state=True, recurrent_activation="sigmoid", reset_after='true', name='gru_b', trainable=False)
 
-    with open('/content/drive/MyDrive/recurrent_kernel_weight_of_grub.npy', 'rb') as f:
-        recurrent_kernel_weight = np.load(f)
-    
-    rnn2 = TT_GRU(tt_input_shape=tt_input_shape, tt_output_shape=tt_output_shape, tt_ranks=tt_ranks, return_sequences=True, return_state=True, recurrent_initializer=initializers.Constant(recurrent_kernel_weight), name='tt_gru_b')
-                  
-                  
-    
+                      
     rnn_in = Concatenate()([cpcm, cexc, rep(cfeat)])
-    md = MDense(pcm_levels, activation='softmax', name='dual_fc', trainable=False)
+    md = MDense(pcm_levels, activation='softmax', name='dual_fc', trainable=True)
     gru_out1, _ = rnn(rnn_in)
     gru_out2, _ = rnn2(Concatenate()([gru_out1, rep(cfeat)]))
     ulaw_prob = md(gru_out2)
