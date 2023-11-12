@@ -98,7 +98,7 @@ del sig
 del pred
 
 # dump models to disk as we go
-checkpoint = ModelCheckpoint('/content/drive/MyDrive/checkpoint_original_lpcnet/ljspeech-lpcnet20_384_10_G16_{epoch:02d}.h5')
+checkpoint = ModelCheckpoint('/content/drive/MyDrive/checkpoint_original_lpcnet/maybepodcast-lpcnet20_384_10_G16_{epoch:02d}.h5')
 
 #model.load_weights('lpcnet9b_384_10_G16_01.h5')
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
