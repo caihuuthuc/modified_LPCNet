@@ -1,4 +1,5 @@
 from keras import backend as K
+import tensorflow as tf
 from tensorflow.keras.layers import Layer, InputSpec
 from tensorflow.python.keras import activations, initializers, regularizers, constraints
 import numpy as np
@@ -36,14 +37,39 @@ class Tucker_MDense(Layer):
         self.supports_masking = True
 
         with open('/content/drive/MyDrive/core_kernel_weight_of_dualfc.npy', 'rb') as fin:
-            self.core = np.load(fin)
+            core_weight = np.load(fin)
         with open('/content/drive/MyDrive/factor_0_kernel_weight_of_dualfc.npy', 'rb') as fin:
-            self.factor_0 = np.load(fin)
+            factor_0_weight = np.load(fin)
         with open('/content/drive/MyDrive/factor_1_kernel_weight_of_dualfc.npy', 'rb') as fin:
-            self.factor_1 = np.load(fin)
+            factor_1_weight = np.load(fin)
         with open('/content/drive/MyDrive/factor_2_kernel_weight_of_dualfc.npy', 'rb') as fin:
-            self.factor_2 = np.load(fin)
+            factor_2_weight = np.load(fin)
 
+        self.core = self.add_weight(shape=(32,16,2),
+                                    initializer=tf.keras.initializers.Constant(core_weight),
+                                    name='hosvd_core',
+                                    regularizer=self.kernel_regularizer,
+                                    constraint=self.kernel_constraint,
+                                   )
+        self.factor_0 = self.add_weight(shape=(256,32),
+                                    initializer=tf.keras.initializers.Constant(factor_0_weight),
+                                    name='hosvd_factor_0_weight',
+                                    regularizer=self.kernel_regularizer,
+                                    constraint=self.kernel_constraint,
+                                   )
+        self.factor_1 = self.add_weight(shape=(16,16),
+                                    initializer=tf.keras.initializers.Constant(factor_1_weight),
+                                    name='hosvd_factor_1_weight',
+                                    regularizer=self.kernel_regularizer,
+                                    constraint=self.kernel_constraint,
+                                   )
+        self.factor_2 = self.add_weight(shape=(2,2),
+                                    initializer=tf.keras.initializers.Constant(factor_2_weight),
+                                    name='hosvd_factor_2_weight',
+                                    regularizer=self.kernel_regularizer,
+                                    constraint=self.kernel_constraint,
+                                   )
+                     
     def build(self, input_shape):
         assert len(input_shape) >= 2
         input_dim = input_shape[-1]
@@ -52,26 +78,26 @@ class Tucker_MDense(Layer):
                                       initializer=self.kernel_initializer,
                                       name='kernel',
                                       regularizer=self.kernel_regularizer,
-                                      constraint=self.kernel_constraint)
+                                      constraint=self.kernel_constraint, trainable=False)
         
-        r0 = np.einsum('ijn,ki->kjn', self.core, self.factor_0)
-        r01 = np.einsum('ijn,kj->ikn', r0, self.factor_1)
+        r0 = tf.einsum('ijn,ki->kjn', self.core, self.factor_0)
+        r01 = tf.einsum('ijn,kj->ikn', r0, self.factor_1)
 
-        self.hosvd_kernel = np.einsum('ijn,kn->ijk', r01, self.factor_2)
+        self.hosvd_kernel = tf.einsum('ijn,kn->ijk', r01, self.factor_2)
 
         if self.use_bias:
             self.bias = self.add_weight(shape=(self.units, self.channels),
                                         initializer=self.bias_initializer,
                                         name='bias',
                                         regularizer=self.bias_regularizer,
-                                        constraint=self.bias_constraint)
+                                        constraint=self.bias_constraint, trainable=False)
         else:
             self.bias = None
         self.factor = self.add_weight(shape=(self.units, self.channels),
                                     initializer='ones',
                                     name='factor',
                                     regularizer=self.bias_regularizer,
-                                    constraint=self.bias_constraint)
+                                    constraint=self.bias_constraint, trainable=False)
         self.input_spec = InputSpec(min_ndim=2, axes={-1: input_dim})
         self.built = True
 
