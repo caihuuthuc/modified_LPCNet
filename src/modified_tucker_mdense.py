@@ -35,13 +35,13 @@ class Tucker_MDense(Layer):
         self.input_spec = InputSpec(min_ndim=2)
         self.supports_masking = True
 
-        with open('core_kernel_weight_of_dualfc.npy', 'rb') as fin:
+        with open('/content/drive/MyDrive/core_kernel_weight_of_dualfc.npy', 'rb') as fin:
             self.core = np.load(fin)
-        with open('factor_0_kernel_weight_of_dualfc.npy', 'rb') as fin:
+        with open('/content/drive/MyDrive/factor_0_kernel_weight_of_dualfc.npy', 'rb') as fin:
             self.factor_0 = np.load(fin)
-        with open('factor_1_kernel_weight_of_dualfc.npy', 'rb') as fin:
+        with open('/content/drive/MyDrive/factor_1_kernel_weight_of_dualfc.npy', 'rb') as fin:
             self.factor_1 = np.load(fin)
-        with open('factor_2_kernel_weight_of_dualfc.npy', 'rb') as fin:
+        with open('/content/drive/MyDrive/factor_2_kernel_weight_of_dualfc.npy', 'rb') as fin:
             self.factor_2 = np.load(fin)
 
     def build(self, input_shape):
