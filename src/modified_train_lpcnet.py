@@ -26,7 +26,7 @@ batch_size = 512
 model, _, _ = modified_lpcnet.new_lpcnet_model()
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
-model.load_weights('/content/drive/MyDrive/lpcnet20_384_10_G16_10.h5', by_name=True, skip_mismatch = True)
+model.load_weights('/content/drive/MyDrive/checkpoint_original_lpcnet/maybepodcast-lpcnet20_384_10_G16_05.h5', by_name=True, skip_mismatch = True)
 # model.load_weights('/content/drive/MyDrive/tt_lpcnet20_384_10_G16_05.h5')
 
 
@@ -74,7 +74,7 @@ del sig
 del pred
 
 # dump models to disk as we go
-checkpoint = ModelCheckpoint('/content/drive/MyDrive/hosvd_mdense_lpcnet20_384_10_G16_{epoch:02d}.h5')
+checkpoint = ModelCheckpoint('/content/drive/MyDrive/checkpoint_hosvd_lpcnet/hosvd_mdense_lpcnet20_384_10_G16_{epoch:02d}.h5')
 
 #model.load_weights('lpcnet9b_384_10_G16_01.h5')
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
