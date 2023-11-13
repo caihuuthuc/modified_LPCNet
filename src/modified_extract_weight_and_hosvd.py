@@ -11,6 +11,7 @@ import h5py
 
 import tensorly as tl
 from tensorly.decomposition import tucker
+from tensorly.decomposition import partial_tucker
 
 import tensorflow as tf
 from tensorflow.python.keras.backend import set_session
@@ -44,6 +45,10 @@ with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'wb') as f:
     np.save(f, kernel_weight)
 
 tucker_tensor = tucker(tl.tensor(kernel_weight), rank=[2, 3, 2])
+
+with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'wb') as f:
+    np.save(f, kernel_weight)
+    
 
 reconstructed = tl.tucker_to_tensor(tucker_tensor)
 
