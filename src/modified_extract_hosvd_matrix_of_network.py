@@ -45,7 +45,7 @@ factor_1_weight = get_weights_by_name(model, factor_1_name).numpy()
 factor_2_weight = get_weights_by_name(model, factor_2_name).numpy()
 
 
-reconstructed = tl.tucker_to_tensor(tucker_tensor)
+#reconstructed = tl.tucker_to_tensor(tucker_tensor)
 
 core = tl.to_numpy(tucker_tensor[0])
 factor_0 = tl.to_numpy(tucker_tensor[1][0])
