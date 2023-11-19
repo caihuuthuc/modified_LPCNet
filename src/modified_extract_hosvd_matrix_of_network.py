@@ -12,6 +12,7 @@ import h5py
 import tensorly as tl
 from tensorly.decomposition import tucker
 from tensorly.decomposition import partial_tucker
+from tensorly import tenalg
 
 import tensorflow as tf
 from tensorflow.python.keras.backend import set_session
