@@ -50,5 +50,5 @@ factor_2_weight = get_weights_by_name(model, factor_2_name).numpy()
 with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'rb') as f:
     kernel_weight = np.load(f)
 
-rec = tenalg.multi_mode_dot(core, [factor_0, factor_1, factor_2])
+rec = tenalg.multi_mode_dot(core_weight, [factor_0_weight, factor_1_weight, factor_2_weight])
 rec_error = tl.norm(rec - kernel_weight)/tl.norm(kernel_weight)
