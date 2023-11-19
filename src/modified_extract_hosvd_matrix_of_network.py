@@ -52,3 +52,5 @@ with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'rb') as f:
 
 rec = tenalg.multi_mode_dot(core_weight, [factor_0_weight, factor_1_weight, factor_2_weight])
 rec_error = tl.norm(rec - kernel_weight)/tl.norm(kernel_weight)
+
+print("reconstruct error:  ", rec_error)
