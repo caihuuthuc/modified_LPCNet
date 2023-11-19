@@ -17,6 +17,26 @@ from tensorly import tenalg
 import tensorflow as tf
 from tensorflow.python.keras.backend import set_session
 
+'''Adapted from dump_lpcnet.py'''
+def printVector(vector, name, dtype='float'):
+    outline = ""
+    v = np.reshape(vector, (-1));
+    #print('static const float ', name, '[', len(v), '] = \n', file=f)
+    outline += 'static const {} {}[{}] = {{\n   '.format(dtype, name, len(v))
+    for i in range(0, len(v)):
+        outline += '{}'.format(v[i])
+        if (i!=len(v)-1):
+            outline += ','
+        else:
+            break;
+        if (i%8==7):
+            outline += "\n   "
+        else:
+            outline += " "
+    #print(v, file=f)
+    outline += '\n};\n\n'
+    return outline
+    
 def get_weights_by_name(model, name):
     return [w for w in model.weights if w.name==name][0]
 
@@ -54,3 +74,6 @@ rec = tenalg.multi_mode_dot(core_weight, [factor_0_weight, factor_1_weight, fact
 rec_error = tl.norm(rec - kernel_weight)/tl.norm(kernel_weight)
 
 print("reconstruct error:  ", rec_error)
+
+kernel_c_data = printVector(rec, "kernel_weight_dualfc")
+print(kernel_c_data)
