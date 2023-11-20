@@ -75,6 +75,6 @@ rec_error = tl.norm(rec - kernel_weight)/tl.norm(kernel_weight)
 
 print("reconstruct error:  ", rec_error)
 
-kernel_c_data = printVector(rec, "kernel_weight_dualfc")
+kernel_c_data = printVector(rec, "dual_fc_weights")
 with open('kernel_data.c', 'w') as f:
     f.write(kernel_c_data)
