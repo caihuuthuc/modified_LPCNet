@@ -78,3 +78,6 @@ print("reconstruct error:  ", rec_error)
 kernel_c_data = printVector(rec, "dual_fc_weights")
 with open('kernel_data.c', 'w') as f:
     f.write(kernel_c_data)
+
+with open('original_kernel_data.c', 'w') as f:
+    f.write(printVector(kernel_weight, "dual_fc_weights"))
