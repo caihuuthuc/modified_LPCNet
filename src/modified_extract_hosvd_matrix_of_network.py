@@ -67,6 +67,12 @@ model.load_weights('/content/drive/MyDrive/checkpoint_hosvd_lpcnet/hosvd_mdense_
 
 # names = [weight.name for layer in model.layers for weight in layer.weights]
 # print(names)
+with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'rb') as f:
+    kernel_weight = np.load(f)
+
+original_kernel = get_original_dualfc_weight()
+hosvd_error = tl.norm(original_kernel - kernel_weight)/tl.norm(kernel_weight)
+
 
 core_name = 'dual_fc/hosvd_core:0'
 factor_0_name = 'dual_fc/hosvd_factor_0:0'
@@ -81,16 +87,10 @@ factor_1_weight = get_weights_by_name(model, factor_1_name).numpy()
 factor_2_weight = get_weights_by_name(model, factor_2_name).numpy()
 
 
-
-with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'rb') as f:
-    kernel_weight = np.load(f)
-
-original_kernel = get_original_dualfc_weight()
-hosvd_error = tl.norm(original_kernel - kernel_weight)/tl.norm(kernel_weight)
-print("hosvd error:  ", hosvd_error)
-
 rec = tenalg.multi_mode_dot(core_weight, [factor_0_weight, factor_1_weight, factor_2_weight])
 rec_error = tl.norm(rec - kernel_weight)/tl.norm(kernel_weight)
+
+print("hosvd error:  ", hosvd_error)
 print("reconstruct error:  ", rec_error)
 
 
