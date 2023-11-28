@@ -48,7 +48,7 @@ model, enc, dec = lpcnet.new_lpcnet_model(use_gpu=False)
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 
-model.load_weights('/content/drive/MyDrive/checkpoint_hosvd_lpcnet/hosvd_mdense_lpcnet20_384_10_G16_01.h5', by_name=True,) 
+model.load_weights('/content/drive/MyDrive/checkpoint_hosvd_lpcnet/hosvd_mdense_lpcnet20_384_10_G16_02.h5', by_name=True,) 
 
 # names = [weight.name for layer in model.layers for weight in layer.weights]
 # print(names)
@@ -67,7 +67,7 @@ factor_2_weight = get_weights_by_name(model, factor_2_name).numpy()
 
 
 
-with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'rb') as f:
+with open('/content/drive/MyDrive/size_2_3_2/kernel_weight_of_dualfc.npy', 'rb') as f:
     kernel_weight = np.load(f)
 
 rec = tenalg.multi_mode_dot(core_weight, [factor_0_weight, factor_1_weight, factor_2_weight])
