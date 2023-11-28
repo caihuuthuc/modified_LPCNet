@@ -17,6 +17,21 @@ from tensorly import tenalg
 import tensorflow as tf
 from tensorflow.python.keras.backend import set_session
 
+def get_original_dualfc_weight():
+    with open('/content/drive/MyDrive/core_kernel_weight_of_dualfc.npy', 'rb') as f:
+        core_weight = np.load(f)
+
+    with open('/content/drive/MyDrive/factor_0_kernel_weight_of_dualfc.npy', 'rb') as f:
+        factor_0_weight = np.load(f)
+
+    with open('/content/drive/MyDrive/factor_1_kernel_weight_of_dualfc.npy', 'rb') as f:
+        factor_1_weight = np.load(f)
+
+    with open('/content/drive/MyDrive/factor_2_kernel_weight_of_dualfc.npy', 'rb') as f:
+        factor_2_weight = np.load(f)
+
+    return tenalg.multi_mode_dot(core_weight, [factor_0_weight, factor_1_weight, factor_2_weight])
+            
 '''Adapted from dump_lpcnet.py'''
 def printVector(vector, name, dtype='float'):
     outline = ""
@@ -70,10 +85,15 @@ factor_2_weight = get_weights_by_name(model, factor_2_name).numpy()
 with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'rb') as f:
     kernel_weight = np.load(f)
 
+original_kernel = get_original_dualfc_weight()
+hosvd_error = tl.norm(original_kernel - kernel_weight)/tl.norm(kernel_weight)
+print("hosvd error:  ", hosvd_error)
+
 rec = tenalg.multi_mode_dot(core_weight, [factor_0_weight, factor_1_weight, factor_2_weight])
 rec_error = tl.norm(rec - kernel_weight)/tl.norm(kernel_weight)
-
 print("reconstruct error:  ", rec_error)
+
+
 
 kernel_c_data = printVector(rec, "dual_fc_weights")
 with open('kernel_data.c', 'w') as f:
