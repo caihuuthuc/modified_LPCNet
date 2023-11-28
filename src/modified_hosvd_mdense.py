@@ -83,9 +83,9 @@ class MDense(Layer):
     def call(self, inputs):
         r0 = tf.einsum('ijn,ki->kjn', self.core, self.factor_0)
         r01 = tf.einsum('ijn,kj->ikn', r0, self.factor_1)
-        self.kernel = tf.einsum('ijn,kn->ijk', r01, self.factor_2)
+        hosvd_kernel = tf.einsum('ijn,kn->ijk', r01, self.factor_2)
 
-        output = K.dot(inputs, self.kernel)
+        output = K.dot(inputs, hosvd_kernel)
         if self.use_bias:
             output = output + self.bias
         output = K.tanh(output) * self.factor
