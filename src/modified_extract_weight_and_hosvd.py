@@ -27,7 +27,7 @@ model, enc, dec = lpcnet.new_lpcnet_model(use_gpu=False)
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 
-model.load_weights('/content/drive/MyDrive/checkpoint_original_lpcnet/maybepodcast-lpcnet20_384_10_G16_05.h5')
+model.load_weights('/content/drive/MyDrive/lpcnet9_384_10_G16_120.h5')
 
 # names = [weight.name for layer in model.layers for weight in layer.weights]
 # print(names)
@@ -68,3 +68,6 @@ with open('/content/drive/MyDrive/factor_2_kernel_weight_of_dualfc.npy', 'wb') a
 
 with open('/content/drive/MyDrive/reconstructed_kernel_weight_of_dualfc.npy', 'wb') as f:
     np.save(f, reconstructed)
+
+rec_error = tl.norm(reconstructed - kernel_weight)/tl.norm(kernel_weight)
+print("reconstruct error:  ", rec_error)
