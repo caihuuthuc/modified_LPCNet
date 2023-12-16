@@ -18,7 +18,7 @@ config.gpu_options.per_process_gpu_memory_fraction = 0.44
 
 set_session(tf.compat.v1.Session(config=config))
 
-nb_epochs = 2
+nb_epochs = 5
 
 # Try reducing batch_size if you run out of memory on your GPU
 batch_size = 128
@@ -26,10 +26,10 @@ batch_size = 128
 model, _, _ = modified_lpcnet.new_lpcnet_model()
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
-model.load_weights('/content/drive/MyDrive/checkpoint_original_lpcnet_maybepodcast/maybepodcast-lpcnet20_384_10_G16_05.h5', by_name=True, skip_mismatch = True)
 
+model.load_weights('/content/drive/MyDrive/checkpoint_hosvd_lpcnet/backup_hosvd_mdense_lpcnet20_384_10_G16_02.h5', by_name=True)
 
-
+# model.load_weights('/content/drive/MyDrive/checkpoint_original_lpcnet_maybepodcast/maybepodcast-lpcnet20_384_10_G16_05.h5', by_name=True, skip_mismatch = True)
 
 model.summary()
 
