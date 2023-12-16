@@ -60,7 +60,8 @@ class MDense(Layer):
                                       initializer=self.kernel_initializer,
                                       name='kernel',
                                       regularizer=self.kernel_regularizer,
-                                      constraint=self.kernel_constraint)
+                                      constraint=self.kernel_constraint,
+                                      trainable=False)
         if self.use_bias:
             self.bias = self.add_weight(shape=(self.units, self.channels), # Expected (pcm_levels ~ 2**8=256, 2)
                                         initializer=self.bias_initializer,
