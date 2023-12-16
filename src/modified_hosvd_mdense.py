@@ -56,12 +56,12 @@ class MDense(Layer):
         self.factor_1 = tf.Variable(initial_value = factor_1_weight, name='hosvd_factor_1', trainable=True)
         self.factor_2 = tf.Variable(initial_value = factor_2_weight, name='hosvd_factor_2', trainable=True)
 
-        self.kernel = self.add_weight(shape=(self.units, input_dim, self.channels), # Expected (pcm_levels ~ 2**8=256, 54, 2)
-                                      initializer=self.kernel_initializer,
-                                      name='kernel',
-                                      regularizer=self.kernel_regularizer,
-                                      constraint=self.kernel_constraint,
-                                      trainable=False)
+        # self.kernel = self.add_weight(shape=(self.units, input_dim, self.channels), # Expected (pcm_levels ~ 2**8=256, 54, 2)
+        #                               initializer=self.kernel_initializer,
+        #                               name='kernel',
+        #                               regularizer=self.kernel_regularizer,
+        #                               constraint=self.kernel_constraint,
+        #                               trainable=False)
         if self.use_bias:
             self.bias = self.add_weight(shape=(self.units, self.channels), # Expected (pcm_levels ~ 2**8=256, 2)
                                         initializer=self.bias_initializer,
