@@ -90,8 +90,8 @@ factor_2_weight = get_weights_by_name(model, factor_2_name).numpy()
 rec = tenalg.multi_mode_dot(core_weight, [factor_0_weight, factor_1_weight, factor_2_weight])
 rec_error = tl.norm(rec - kernel_weight)/tl.norm(kernel_weight)
 
-print("hosvd error:  ", hosvd_error)
-print("reconstruct error:  ", rec_error)
+print("hosvd -- rec error:  ", hosvd_error)
+print("after tuning -- rec error:  ", rec_error)
 
 
 
