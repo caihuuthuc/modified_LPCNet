@@ -27,7 +27,7 @@ model, _, _ = modified_lpcnet.new_lpcnet_model()
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 
-model.load_weights('/content/drive/MyDrive/checkpoint_hosvd_lpcnet/backup_hosvd_mdense_lpcnet20_384_10_G16_02.h5', by_name=True)
+model.load_weights('/content/drive/MyDrive/checkpoint_hosvd_lpcnet/backup_hosvd_mdense_lpcnet20_384_10_G16_02.h5')
 
 # model.load_weights('/content/drive/MyDrive/checkpoint_original_lpcnet_maybepodcast/maybepodcast-lpcnet20_384_10_G16_05.h5', by_name=True, skip_mismatch = True)
 
@@ -78,7 +78,7 @@ checkpoint = ModelCheckpoint('/content/drive/MyDrive/checkpoint_hosvd_lpcnet/hos
 
 #model.load_weights('lpcnet9b_384_10_G16_01.h5')
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=0.001,
+    initial_learning_rate=0.005,
     decay_steps=1000,
     decay_rate=0.9)
 optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
