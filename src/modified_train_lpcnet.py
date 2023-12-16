@@ -26,8 +26,8 @@ batch_size = 128
 model, _, _ = modified_lpcnet.new_lpcnet_model()
 
 model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
-model.load_weights('/content/drive/MyDrive/checkpoint_hosvd_lpcnet/backup_hosvd_mdense_lpcnet20_384_10_G16_03.h5', by_name=True, skip_mismatch = True)
-# model.load_weights('/content/drive/MyDrive/tt_lpcnet20_384_10_G16_05.h5')
+model.load_weights('/content/drive/MyDrive/checkpoint_original_lpcnet_maybepodcast/maybepodcast-lpcnet20_384_10_G16_05.h5', by_name=True, skip_mismatch = True)
+
 
 
 
