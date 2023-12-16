@@ -41,7 +41,7 @@ kernel_weight = get_weights_by_name(model, kernel_name).numpy()
 bias_weight = get_weights_by_name(model, bias_name).numpy()
 factor_weight = get_weights_by_name(model, factor_name).numpy()
 
-tucker_tensor = tucker(tl.tensor(kernel_weight), rank=[7, 7, 2])
+tucker_tensor = tucker(tl.tensor(kernel_weight), rank=[11, 11, 2])
 
 with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'wb') as f:
     np.save(f, kernel_weight)
