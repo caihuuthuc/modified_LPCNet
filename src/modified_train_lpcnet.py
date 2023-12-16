@@ -78,8 +78,8 @@ checkpoint = ModelCheckpoint('/content/drive/MyDrive/checkpoint_hosvd_lpcnet/hos
 
 #model.load_weights('lpcnet9b_384_10_G16_01.h5')
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-    initial_learning_rate=0.005,
-    decay_steps=1000,
+    initial_learning_rate=0.001,
+    decay_steps=2000,
     decay_rate=0.9)
 optimizer = tf.keras.optimizers.Adam(learning_rate=lr_schedule)
 
