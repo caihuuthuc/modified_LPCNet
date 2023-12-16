@@ -65,7 +65,7 @@ model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=
 
 weight_path = '/content/drive/MyDrive/checkpoint_hosvd_lpcnet/hosvd_mdense_lpcnet20_384_10_G16_02.h5'
 model.load_weights(weight_path) 
-
+print("Weight loaded: %d", weight_path)
 # names = [weight.name for layer in model.layers for weight in layer.weights]
 # print(names)
 with open('/content/drive/MyDrive/kernel_weight_of_dualfc.npy', 'rb') as f:
